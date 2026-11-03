@@ -1639,3 +1639,65 @@ DUNID000002659017,DUNID000002659032,Voice Artist - Locución,Wellness Spa Movil 
 DUNID000002658047,DUNID000002713558,Habemus Cioccolato (Luisa Fernanda Riaño Arregocés),SalvaGuardian,Alimentos y bebidas,Alimentos y bebidas,0.15,dudosa,Chocolatería artesanal vs cerveza artesanal
 DUNID000002658645,DUNID000002879025,Psicomanuv,"Dr. Ángel Soto, Medicina estética y Antiaging",Salud y bienestar,Salud y bienestar,0.15,mala,Psicología vs medicina estética; calidad de vida genérica
 DUNID000002657912,DUNID000002657921,FUNDACIÓN CAMINOS CONECTANDO SUEÑOS,Fundación DyA Donaciones Académicas,Impacto social,Impacto social,0.15,dudosa,Mentoría juvenil vs donaciones para estudios
+DUNID000002657172,SIE-2026-2-02,2 Food Club},Diana Bermudez Ceramics,"Arte, cultura y entretenimiento","Arte, cultura y entretenimiento",0.204,mala,Cerámica decorativa frente a música para medios
+DUNID000002657214,SIE-2026-2-07,Adequim Sas,Postres Lirole,"Arte, cultura y entretenimiento",Alimentos y bebidas,0.399,mala,Repostería frente a artesanías de papel; solo 'artesanal'
+DUNID000002657214,SIE-2026-2-02,Adequim Sas,Diana Bermudez Ceramics,"Arte, cultura y entretenimiento","Arte, cultura y entretenimiento",0.154,dudosa,"Ambas artesanías decorativas, con materiales y productos distintos"
+DUNID000002657291,SIE-2026-2-03,Angela Jácome Consulting,VIVE BIENESTAR EN TI,Consultoría y servicios profesionales,Consultoría y servicios profesionales,0.311,ok,Ambas selección y consultoría de recursos humanos
+DUNID000002657345,SIE-2026-2-08,Automotora Nacional,Mia Cappella,Alimentos y bebidas,Alimentos y bebidas,0.331,dudosa,Salsas de tomate frente a venta genérica de productos saludables
+DUNID000002657418,SIE-2026-2-09,BOGANBILIA CENTRO DE CUIDADO Y ESTIMULACION INFANTIL,SPEAKYA,Educación y formación,Educación y formación,0.22,dudosa,Aprendizaje de inglés frente a educación inicial; mismo gran rubro
+DUNID000002657526,SIE-2026-2-10,chivorkite,Retorno,Turismo y hospitalidad,Turismo y hospitalidad,0.401,ok,Turismo de naturaleza frente a deporte y turismo
+DUNID000002657547,SIE-2026-2-03,Coaching Grow,VIVE BIENESTAR EN TI,Consultoría y servicios profesionales,Consultoría y servicios profesionales,0.153,dudosa,Recursos humanos frente a coaching; relación débil
+DUNID000002657566,SIE-2026-2-09,Colombia Games S.A.S.,SPEAKYA,Tecnología y software,Educación y formación,0.387,dudosa,Plataforma de inglés frente a desarrollo de software; solo comparten IA
+DUNID000002657648,SIE-2026-2-07,Cremas Vejetales,Postres Lirole,Alimentos y bebidas,Alimentos y bebidas,0.31,ok,Repostería y su proveedor de insumos de pastelería
+DUNID000002657652,SIE-2026-2-03,Cromática Coaching,VIVE BIENESTAR EN TI,Consultoría y servicios profesionales,Consultoría y servicios profesionales,0.162,dudosa,Talento humano frente a coaching de liderazgo
+DUNID000002657679,SIE-2026-2-08,Deleite Saludable,Mia Cappella,Alimentos y bebidas,Alimentos y bebidas,0.331,dudosa,Salsas de tomate frente a distribución genérica de productos saludables
+DUNID000002657799,SIE-2026-2-07,Engalletarte,Postres Lirole,Alimentos y bebidas,Alimentos y bebidas,0.371,ok,Ambas repostería y galletas artesanales
+DUNID000002657808,SIE-2026-2-11,Equilibriumbody,Cinetium,Salud y bienestar,Salud y bienestar,0.212,ok,Ambas fisioterapia a domicilio
+DUNID000002657852,SIE-2026-2-03,Faros Consultoria Organizacional S.A.S,VIVE BIENESTAR EN TI,Consultoría y servicios profesionales,Consultoría y servicios profesionales,0.186,ok,Ambas consultoría en recursos humanos
+DUNID000002657875,SIE-2026-2-11,Fisio Fitness,Cinetium,Salud y bienestar,Salud y bienestar,0.163,dudosa,Fisioterapia frente a entrenamiento personal
+DUNID000002658008,SIE-2026-2-08,"Granolas, Snacks Y Tortas Saludables",Mia Cappella,Alimentos y bebidas,Alimentos y bebidas,0.211,dudosa,"Salsas frente a snacks saludables; mismo rubro, producto distinto"
+DUNID000002658047,SIE-2026-2-07,Habemus Cioccolato (Luisa Fernanda Riaño Arregocés),Postres Lirole,Alimentos y bebidas,Alimentos y bebidas,0.39,ok,Repostería artesanal y chocolatería y repostería
+DUNID000002658191,SIE-2026-2-03,Isaseg Consulting Group Ltda,VIVE BIENESTAR EN TI,Consultoría y servicios profesionales,Consultoría y servicios profesionales,0.232,ok,Ambas consultoría en talento humano y formación
+DUNID000002658212,SIE-2026-2-06,Jardín Infantil Pans,Sensia Orientación Educativa,Educación y formación,Educación y formación,0.197,dudosa,Orientación educativa frente a jardín infantil
+DUNID000002658257,SIE-2026-2-01,Koffee Kingdom,TARTARUGA COFFEE SHOP,Alimentos y bebidas,Alimentos y bebidas,0.468,ok,Ambas café de especialidad
+DUNID000002658264,SIE-2026-2-01,Café Lorián SAS,TARTARUGA COFFEE SHOP,Alimentos y bebidas,Alimentos y bebidas,0.46,ok,Ambas venden café
+DUNID000002658299,SIE-2026-2-07,Legendarias Organizadoras De Eventos Y Catering,Postres Lirole,"Arte, cultura y entretenimiento",Alimentos y bebidas,0.413,dudosa,Repostería frente a organizadoras de eventos con catering
+DUNID000002658419,SIE-2026-2-07,MERENGUES AMARYMAS,Postres Lirole,Alimentos y bebidas,Alimentos y bebidas,0.573,ok,Ambas repostería y pastelería
+DUNID000002658598,SIE-2026-2-07,Pocaprisa hidromiel,Postres Lirole,Alimentos y bebidas,Alimentos y bebidas,0.414,mala,Repostería frente a hidromiel; solo 'artesanal'
+DUNID000002658607,SIE-2026-2-07,Prados Joyeria,Postres Lirole,Moda y textiles,Alimentos y bebidas,0.343,mala,Repostería frente a joyería; solo 'artesanal'
+DUNID000002658624,SIE-2026-2-08,Productos Kumara Sas,Mia Cappella,Alimentos y bebidas,Alimentos y bebidas,0.355,dudosa,"Salsas frente a desarrollo de productos saludables, descripción vaga"
+DUNID000002658629,SIE-2026-2-10,Profinat Sas,Retorno,Comercio y distribución,Turismo y hospitalidad,0.498,mala,Turismo de naturaleza frente a productos naturales; palabra homónima
+DUNID000002658645,SIE-2026-2-11,Psicomanuv,Cinetium,Salud y bienestar,Salud y bienestar,0.242,dudosa,Fisioterapia frente a asesoría psicológica; ambos bienestar
+DUNID000002658681,SIE-2026-2-10,Refugio Campreste Villa Delfina,Retorno,Turismo y hospitalidad,Turismo y hospitalidad,0.359,ok,Ambas turismo y alojamiento
+DUNID000002658707,SIE-2026-2-03,Rodriguez Medina Consultores,VIVE BIENESTAR EN TI,Consultoría y servicios profesionales,Consultoría y servicios profesionales,0.244,dudosa,Recursos humanos frente a asesoría jurídica y laboral
+DUNID000002658709,SIE-2026-2-07,Roller Toster,Postres Lirole,Alimentos y bebidas,Alimentos y bebidas,0.294,mala,Repostería frente a hamburguesas; solo 'artesanal'
+DUNID000002658715,SIE-2026-2-06,Rpm Emprendedores Sas,Sensia Orientación Educativa,Educación y formación,Educación y formación,0.168,dudosa,Orientación educativa frente a material educativo para emprendimiento
+DUNID000002658869,SIE-2026-2-01,T&C Group Sas,TARTARUGA COFFEE SHOP,Alimentos y bebidas,Alimentos y bebidas,0.303,dudosa,Cafetería frente a exportador de café
+DUNID000002658903,SIE-2026-2-01,Terracota Cafe Y Mas,TARTARUGA COFFEE SHOP,Alimentos y bebidas,Alimentos y bebidas,0.301,ok,Ambas café especial
+DUNID000002658922,SIE-2026-2-03,Tita Media,VIVE BIENESTAR EN TI,Consultoría y servicios profesionales,Consultoría y servicios profesionales,0.224,dudosa,Recursos humanos frente a transición de carrera
+DUNID000002658955,SIE-2026-2-01,Trufas Bogotá / Huertos Bogotá,TARTARUGA COFFEE SHOP,Alimentos y bebidas,Alimentos y bebidas,0.212,dudosa,Café y tortas frente a trufas y tablas de queso
+DUNID000002678089,SIE-2026-2-03,Bluecv,VIVE BIENESTAR EN TI,Consultoría y servicios profesionales,Consultoría y servicios profesionales,0.224,ok,"Ambas talento humano, empleo y capacitación"
+DUNID000002713558,SIE-2026-2-07,SalvaGuardian,Postres Lirole,Alimentos y bebidas,Alimentos y bebidas,0.363,mala,Repostería frente a cerveza; solo 'artesanal'
+DUNID000002713558,SIE-2026-2-01,SalvaGuardian,TARTARUGA COFFEE SHOP,Alimentos y bebidas,Alimentos y bebidas,0.177,mala,Café frente a cerveza; solo 'artesanal'
+DUNID000002713580,SIE-2026-2-12,Baobun,Bom Dia Treats,Alimentos y bebidas,Alimentos y bebidas,0.226,dudosa,Alimentos naturales frente a restaurante
+DUNID000002717398,SIE-2026-2-06,AMG,Sensia Orientación Educativa,Educación y formación,Educación y formación,0.188,ok,Ambas asesoría educativa
+DUNID000002717427,SIE-2026-2-10,Janane Viajes Ltda,Retorno,Turismo y hospitalidad,Turismo y hospitalidad,0.177,dudosa,Tours de naturaleza frente a consultoría turística
+DUNID000002717555,SIE-2026-2-09,ñliceo tecnico paulo fredi,SPEAKYA,Educación y formación,Educación y formación,0.175,dudosa,Aprendizaje de inglés frente a colegio de idiomas
+DUNID000002717581,SIE-2026-2-01,ARABICA CAFES ESPECIALES,TARTARUGA COFFEE SHOP,Alimentos y bebidas,Alimentos y bebidas,0.205,ok,Ambas venta de café
+DUNID000002719846,SIE-2026-2-08,Avicola Guadalupe,Mia Cappella,Alimentos y bebidas,Alimentos y bebidas,0.203,dudosa,Salsas frente a distribución de pollo y carnes frías
+DUNID000002730550,SIE-2026-2-03,Team Management Risk Consulting Sas,VIVE BIENESTAR EN TI,Consultoría y servicios profesionales,Consultoría y servicios profesionales,0.192,dudosa,Selección de personal comparte función; el resto es seguridad
+DUNID000002730923,SIE-2026-2-01,Amelie / Pizzario / La calle,TARTARUGA COFFEE SHOP,Alimentos y bebidas,Alimentos y bebidas,0.219,dudosa,Cafetería frente a restaurante de pizzas
+DUNID000003111109,SIE-2026-2-06,We Are TOP,Sensia Orientación Educativa,Educación y formación,Educación y formación,0.166,ok,Ambas orientan decisiones educativas
+SIE-2026-2-02,SIE-2026-2-04,Diana Bermudez Ceramics,Boutique Dmadera,"Arte, cultura y entretenimiento","Arte, cultura y entretenimiento",0.21,ok,Ambas decoración artesanal para el hogar
+DUNID000002657239,DUNID000002658264,AGROPULI,Café Lorián SAS,Agro y medio ambiente,Alimentos y bebidas,0.301,ok,Ambas producción agrícola
+DUNID000002657344,DUNID000002719840,Aupa Lenceria & Swimwear,Corporación Impulsamos,Impacto social,Impacto social,0.152,dudosa,Trabajo social frente a consultoría a organizaciones sociales
+DUNID000002657431,DUNID000008566127,BRULE ESTUDIO,Freedom Agency SAS,Marketing y comunicaciones,Marketing y comunicaciones,0.199,ok,Ambas contenidos y estrategia digital creativa
+DUNID000002657531,DUNID000002715531,Citi Comercializadora Sas,Cosas de casa by Cava,Comercio y distribución,Moda y textiles,0.301,dudosa,Importadora de textiles frente a fabricante de textiles para el hogar
+DUNID000002657573,DUNID000002657823,Comercial ICON SAS,Estrategias Efectivas Sas,Consultoría y servicios profesionales,Consultoría y servicios profesionales,0.15,dudosa,Consultoría corporativa frente a asesoría financiera
+DUNID000002657588,DUNID000002657830,Conexión Eventos S.A.S,Eu Aleman Producciones,"Arte, cultura y entretenimiento","Arte, cultura y entretenimiento",0.156,ok,Ambas producción de eventos
+DUNID000002658087,DUNID000002658264,Huerta De Hortalizas Y Aromáticas Organicas,Café Lorián SAS,Agro y medio ambiente,Alimentos y bebidas,0.301,dudosa,Hortalizas frente a café
+DUNID000002658185,DUNID000002713562,Inversiones Vargas Sepulveda Sas,DC ESTUDIO LEGAL S,Consultoría y servicios profesionales,Consultoría y servicios profesionales,0.187,ok,Ambas servicios jurídicos
+DUNID000002658485,DUNID000002730798,NHSA Constructores SAS,Spiderlift Company,Construcción e inmobiliario,Construcción e inmobiliario,0.191,dudosa,Construcción de vivienda frente a alquiler de maquinaria
+DUNID000002658591,DUNID000002715691,Pinturas Globo Color Eu,Fm Arquitectura Sas,Industria y manufactura,Construcción e inmobiliario,0.302,dudosa,Pinturas frente a proyectos de arquitectura
+DUNID000002658850,DUNID000002658998,Stockdown,Vgc Proyectos Sas,Construcción e inmobiliario,Construcción e inmobiliario,0.152,ok,Ambas proyectos de construcción
+DUNID000002713702,DUNID000008122144,Eventos y decoraciones marioli,D-Kora Naturalmente SAS,"Arte, cultura y entretenimiento","Arte, cultura y entretenimiento",0.321,ok,Ambas organización de eventos y decoración

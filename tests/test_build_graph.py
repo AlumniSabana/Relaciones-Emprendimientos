@@ -14,6 +14,7 @@ import build_graph as bg  # noqa: E402
 BASE_CSV = ROOT / "Base_emprendedores_2026_2_limpia.csv"
 SECTOR_CSV = ROOT / "Sector_relacionado_ia.csv"
 VALIDATION_CSV = ROOT / "Conexiones_validadas.csv"
+NEW_CSV = ROOT / "Emprendedores_nuevos_2026_2_limpia.csv"
 EXCLUDED_LABELS = {
     "Descripción", "Eloqua Unique Identifier", "Mapped to Contact",
     "Volumen de Ingresos", "Tamaño Empresa", "Sector relacionado", "Nombre de empresa",
@@ -341,7 +342,8 @@ CORRECTIONS_CSV = ROOT / "Descripciones_corregidas.csv"
 @pytest.mark.skipif(not (BASE_CSV.exists() and CORRECTIONS_CSV.exists()), reason="faltan los CSV")
 def test_reviewed_descriptions_are_applied_to_the_base():
     corr = pd.read_csv(CORRECTIONS_CSV, encoding="utf-8-sig", dtype=str, keep_default_na=False)
-    base = pd.read_csv(BASE_CSV, encoding="utf-8-sig", dtype=str, keep_default_na=False)
+    base = pd.concat([pd.read_csv(p, encoding="utf-8-sig", dtype=str, keep_default_na=False)
+                      for p in (BASE_CSV, NEW_CSV) if p.exists()], ignore_index=True)
     assert corr["Eloqua Unique Identifier"].is_unique
     assert set(corr["Eloqua Unique Identifier"]) <= set(base["Eloqua Unique Identifier"])
     applied = base.set_index("Eloqua Unique Identifier").loc[corr["Eloqua Unique Identifier"]]
@@ -354,6 +356,35 @@ def test_no_company_is_left_without_connections():
     assert stats["isolated"] == 0
     assert stats["fallback_edges"] > 0
     assert linked_names(graph, "Hotel El Dorado Plaza")  # solo decía "Hoteleria"
+
+
+# Empresas nuevas (Graduados_participantes_Sem_Inn_2026_2.xlsx → Emprendedores_nuevos_2026_2_limpia.csv)
+def test_extra_bases_are_added_and_missing_ones_ignored(tmp_path):
+    base, sector = write_csvs(tmp_path, [{"id": "A1", "name": "Empresa Uno", "sector": "Moda"}])
+    extra_dir = tmp_path / "extra"
+    extra_dir.mkdir()
+    extra, extra_sector = write_csvs(extra_dir, [{"id": "N1", "name": "Empresa Nueva", "sector": "Salud"}])
+    # El sector de las nuevas viene del mismo archivo de sectores que el de la base.
+    merged = pd.concat([pd.read_csv(sector), pd.read_csv(extra_sector)])
+    merged.to_csv(sector, index=False)
+    graph, _ = bg.build_graph(base, sector, extra_csvs=[extra, tmp_path / "no_existe.csv"])
+    assert {n["id"] for n in graph["nodes"]} == {"A1", "N1"}
+    assert {n["id"]: n["sector"] for n in graph["nodes"]} == {"A1": "Moda", "N1": "Salud"}
+
+
+@pytest.mark.skipif(not (BASE_CSV.exists() and SECTOR_CSV.exists() and VALIDATION_CSV.exists() and NEW_CSV.exists()),
+                    reason="faltan los CSV")
+def test_new_companies_are_in_the_graph_connected_and_every_similarity_edge_is_reviewed():
+    graph, stats = bg.build_graph(BASE_CSV, SECTOR_CSV, VALIDATION_CSV, [NEW_CSV])
+    new_ids = set(pd.read_csv(NEW_CSV, dtype=str, encoding="utf-8-sig")["Eloqua Unique Identifier"])
+    assert new_ids and new_ids <= {n["id"] for n in graph["nodes"]}
+    connected = {k for e in graph["edges"] for k in (e["a"], e["b"])}
+    assert new_ids <= connected, "cada empresa nueva tiene al menos una conexión"
+    assert stats["isolated"] == 0
+    # Ninguna conexión por similitud queda sin revisar: si cambian los datos o el algoritmo, hay que validar las nuevas.
+    reviewed = bg.load_validation(VALIDATION_CSV)
+    unreviewed = [(e["a"], e["b"]) for e in graph["edges"] if not e.get("fallback") and (e["a"], e["b"]) not in reviewed]
+    assert unreviewed == []
 
 
 # Con la validación aplicada (revisión de las 1.640 conexiones por similitud)

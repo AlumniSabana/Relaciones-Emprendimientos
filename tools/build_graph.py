@@ -21,6 +21,8 @@ SECTOR_CSV = ROOT / "Sector_relacionado_ia.csv"
 OUT_JSON = ROOT / "web" / "src" / "data" / "graph.json"
 CONNECTIONS_CSV = ROOT / "Conexiones_empresas.csv"
 VALIDATION_CSV = ROOT / "Conexiones_validadas.csv"  # veredicto por conexión (ok, dudosa, mala)
+# Empresas nuevas (tools/clean_new_companies.py), con las mismas columnas que la base.
+EXTRA_CSVS = [ROOT / "Emprendedores_nuevos_2026_2_limpia.csv"]
 
 MIN_SIMILARITY = 0.15        # empresas del mismo sector (research D4)
 MIN_SIMILARITY_CROSS = 0.30  # sectores distintos: se exige más evidencia de que se parecen
@@ -152,9 +154,13 @@ def build_fields(row, discarded=None):
     return fields
 
 
-def load_companies(base_csv, sector_csv):
-    """Filas de empresas válidas con su sector, más un resumen de lo excluido."""
-    base = pd.read_csv(base_csv, dtype=str, keep_default_na=False)
+def load_companies(base_csv, sector_csv, extra_csvs=()):
+    """Filas de empresas válidas con su sector, más un resumen de lo excluido.
+
+    `extra_csvs` son bases con las mismas columnas (empresas nuevas) que se suman a `base_csv`.
+    """
+    base = pd.concat([pd.read_csv(p, dtype=str, keep_default_na=False)
+                      for p in (base_csv, *extra_csvs) if Path(p).exists()], ignore_index=True)
     sectors = pd.read_csv(sector_csv, dtype=str, keep_default_na=False)
     base[ID_COL] = base[ID_COL].str.strip()
     sector_of = (sectors.assign(**{ID_COL: sectors[ID_COL].str.strip()})
@@ -282,8 +288,8 @@ def assign_colors(sector_names):
     return [{"name": n, "color": PALETTE[i]} for i, n in enumerate(names)]
 
 
-def build_graph(base_csv, sector_csv, validation_csv=None):
-    rows, stats = load_companies(base_csv, sector_csv)
+def build_graph(base_csv, sector_csv, validation_csv=None, extra_csvs=()):
+    rows, stats = load_companies(base_csv, sector_csv, extra_csvs)
     rejected = rejected_pairs(load_validation(validation_csv)) if validation_csv else set()
     discarded = Counter()
     fields = {r[ID_COL]: build_fields(r, discarded) for r in rows}
@@ -335,7 +341,7 @@ def write_connections_csv(graph, path, validation=None):
 
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
-    graph, s = build_graph(BASE_CSV, SECTOR_CSV, VALIDATION_CSV)
+    graph, s = build_graph(BASE_CSV, SECTOR_CSV, VALIDATION_CSV, EXTRA_CSVS)
     write_graph(graph, OUT_JSON)
     write_connections_csv(graph, CONNECTIONS_CSV, load_validation(VALIDATION_CSV))
     print(f"Filas de entrada: {s['rows']}")

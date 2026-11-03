@@ -196,8 +196,8 @@ La persona escribe en una barra de búsqueda y ve coincidencias de empresas y de
 - **SC-007**: Ninguna empresa con nombre inválido ni identificador duplicado aparece en el grafo.
 - **SC-008**: Al seleccionar un sector, el 100% de sus empresas (y ninguna de otro sector) aparece con el color del sector, y el cambio se ve en menos de 1 segundo.
 - **SC-009**: Al escribir en la búsqueda, los resultados aparecen en menos de 1 segundo, y una persona nueva encuentra una empresa conocida por su nombre en menos de 30 segundos.
-- **SC-011**: Ninguna empresa que tenga otras de su sector queda sin conexiones (hoy: 0 de 603; antes del respaldo, 22).
-- **SC-012**: En una muestra revisada a mano de las conexiones por similitud que se muestran, ninguna es "mala" (hoy: 1.326 por similitud, de ellas 932 ok y 394 dudosas del mismo sector; se quitaron 201 malas y 113 dudosas entre sectores).
+- **SC-011**: Ninguna empresa que tenga otras de su sector queda sin conexiones (hoy: 0 de 615; antes del respaldo, 22).
+- **SC-012**: En una muestra revisada a mano de las conexiones por similitud que se muestran, ninguna es "mala" (hoy: 1.361 por similitud, de ellas 947 ok y 414 dudosas; 327 parejas rechazadas: las malas y las dudosas entre sectores distintos). Ninguna conexión por similitud queda sin veredicto.
 - **SC-010**: Dividido el grafo en 8 zonas iguales alrededor del centro, ninguna tiene más de un 15% de empresas por encima del promedio.
 
 ## Assumptions
@@ -209,6 +209,7 @@ La persona escribe en una barra de búsqueda y ve coincidencias de empresas y de
 - "Más información disponible" se mide por la cantidad de campos con dato (no vacíos) de cada empresa.
 - Un nombre es inválido cuando está vacío, es un solo símbolo/palabra sin significado como "No" o ".", o una frase que indica que no hay nombre; la lista exacta se refinará con los datos.
 - La tarjeta muestra todos los campos con dato tal como están en los datos, incluidos los de contacto (correo, teléfono, persona de contacto). Los titulares de los datos ya aceptaron el tratamiento de sus datos, por lo que no se aplica ninguna restricción de privacidad adicional sobre la tarjeta.
+- Las empresas nuevas llegan en un Excel (hoy `Graduados_participantes_Sem_Inn_2026_2.xlsx`, 12 empresas) que solo trae nombre del emprendimiento, cargo y descripción. Se limpian con `tools/clean_new_companies.py`, se revisa su descripción, se les asigna sector y se validan una por una sus conexiones nuevas. Al tener pocos campos con dato quedan en el borde del grafo (FR-006) y su tarjeta muestra solo el cargo y la descripción. No se guardan los nombres de las personas ni su programa de grado.
 - Las personas usan la app en un navegador de escritorio moderno; el uso en celular es deseable pero no es objetivo de esta versión.
 - La imagen de referencia está en [reference/researchrabbit.webp](reference/researchrabbit.webp) y es la guía visual a seguir. De ella se toma: nodos como círculos con su nombre debajo sobre un lienzo claro; la selección resaltada con sus conexiones en un trazo más marcado y sus vecinas en color; el resto del grafo desvanecido; y un panel de detalle a la derecha con botón de cerrar (X). Las demás funciones de la imagen (pestañas, biblioteca, filtros, vistas de lista, notas, métricas) quedan fuera de alcance.
 - La app es de solo lectura: no hay edición, exportación, filtros que oculten empresas ni vistas de lista en esta versión. La búsqueda y la selección de sector se añadieron tras la primera revisión (2026-11-02).

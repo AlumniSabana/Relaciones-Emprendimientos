@@ -10,6 +10,14 @@ Guía de verificación de extremo a extremo. Los detalles de datos están en [da
 
 ## 1. Generar los datos
 
+Si llegó un Excel de empresas nuevas (por ejemplo `Graduados_participantes_Sem_Inn_2026_2.xlsx`), primero se limpia. El proceso completo para sumar empresas nuevas está en [research.md](research.md) (D2d):
+
+```bash
+uv run --with pandas --with openpyxl python tools/clean_new_companies.py
+```
+
+Esperado: "Participantes en el Excel: 12 | empresas escritas: 12", con todas con descripción revisada y sector; escribe `Emprendedores_nuevos_2026_2_limpia.csv`. Luego se genera el grafo:
+
 ```bash
 uv run --with pandas --with scikit-learn python tools/build_graph.py
 ```
@@ -19,10 +27,10 @@ Resultado esperado: se crea/actualiza `web/src/data/graph.json` y el script impr
 ## 2. Pruebas automáticas
 
 ```bash
-uv run --with pandas --with scikit-learn --with pytest pytest tests
+uv run --with pandas --with scikit-learn --with openpyxl --with pytest pytest tests
 ```
 
-Esperado: todas pasan (nombres inválidos y duplicados fuera, grado máximo 10, sin enlaces por texto automático (caso Rachid Style), 16 colores únicos, sin campos vacíos, de relleno ni excluidos en `fields`).
+Esperado: todas pasan (también que las empresas nuevas estén en el grafo y conectadas, y que no quede ninguna conexión por similitud sin revisar; nombres inválidos y duplicados fuera, grado máximo 10, sin enlaces por texto automático (caso Rachid Style), 16 colores únicos, sin campos vacíos, de relleno ni excluidos en `fields`).
 
 ```bash
 cd web && npm install && npm test && npx tsc --noEmit

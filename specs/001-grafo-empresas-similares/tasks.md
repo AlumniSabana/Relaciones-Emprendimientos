@@ -211,6 +211,14 @@ description: "Lista de tareas para el grafo de empresas similares"
 - [X] T060 Mover los logos a `web/src/assets/`, crear `web/src/components/Header.tsx` (título `h1` "Emprendedores Alumni" centrado y los dos logos con texto alternativo) y `web/src/lib/header.ts` (`headerOpacity`: 1 hasta 1,05× y 0 desde 1,5×), con `web/src/vite-env.d.ts` para importar imágenes
 - [X] T061 En `web/src/components/Graph.tsx`, encuadrar el grafo bajo el encabezado (lee `--header-h`) y avisar el zoom con `onZoom`; en `web/src/App.tsx`, cambiar la opacidad del encabezado directo en el elemento; la tarjeta baja bajo el encabezado; pruebas en `web/src/__tests__/header.test.tsx`
 
+### Empresas nuevas (Excel de graduados participantes, D2d)
+
+- [X] T062 Crear `tools/clean_new_companies.py`: leer la tabla del Excel bajo las filas de título, limpiar el texto, aplicar `Descripciones_corregidas.csv`, asignar sector y escribir `Emprendedores_nuevos_2026_2_limpia.csv` con las 29 columnas de la base; pruebas en `tests/test_clean_new_companies.py`
+- [X] T063 Revisar la redacción de las 12 descripciones y asignar su sector, añadiendo sus filas a `Descripciones_corregidas.csv` y `Sector_relacionado_ia.csv` (ID `SIE-2026-2-NN`)
+- [X] T064 En `tools/build_graph.py`, sumar `EXTRA_CSVS` a la base (`load_companies(..., extra_csvs)`); ajustar `test_reviewed_descriptions_are_applied_to_the_base`
+- [X] T065 Validar una por una las 62 conexiones por similitud sin veredicto (50 con empresas nuevas, 12 entre antiguas) y guardarlas en `Conexiones_validadas.csv`; prueba que exige que no quede ninguna conexión sin revisar
+- [X] T066 Regenerar `web/src/data/graph.json` y `Conexiones_empresas.csv` (615 empresas, 1.541 conexiones) y comprobar en la app
+
 ### Verificación de la revisión
 
 - [X] T048 Ejecutar `npm test`, `npx tsc --noEmit` y `npm run build` en `web/` y comprobar en el navegador: grafo centrado, sector seleccionado desde la leyenda y desde la búsqueda, empresa buscada visible, y que el grafo vuelve a gris con el fondo
