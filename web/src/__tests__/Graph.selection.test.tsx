@@ -141,9 +141,34 @@ describe("Graph sector mode", () => {
     expect(stillColored.length).toBeLessThan(members.length);
   });
 
-  it("shows no name labels in sector mode", () => {
+  it("labels with their name the 10 companies with the most information, and no others", () => {
     const { container } = render(<Harness initial={{ type: "sector", name: sector.name }} />);
-    expect(container.querySelectorAll("text.label")).toHaveLength(0);
+    const expected = [...members].sort((a, b) => a.rank - b.rank).slice(0, 10).map((n) => n.name);
+    const labels = [...container.querySelectorAll("text.label")].map((t) => t.textContent);
+    expect(labels).toHaveLength(10);
+    expect(labels.sort()).toEqual(expected.map((n) => (n.length > 28 ? `${n.slice(0, 27)}…` : n)).sort());
+  });
+
+  it("labels every company when the sector has fewer than 10", () => {
+    const small = graph.sectors.find((s) => graph.nodes.filter((n) => n.sector === s.name).length < 10)!;
+    const { container } = render(<Harness initial={{ type: "sector", name: small.name }} />);
+    expect(container.querySelectorAll("text.label")).toHaveLength(graph.nodes.filter((n) => n.sector === small.name).length);
+  });
+
+  it("opens no card for those labels (labels only)", () => {
+    const { container } = render(<Harness initial={{ type: "sector", name: sector.name }} />);
+    expect(container.querySelector(".card")).toBeNull();
+    expect(container.querySelector("circle.selected")).toBeNull();
+  });
+});
+
+describe("Graph zoom notifications", () => {
+  it("reports 1 for the initial fit and more than 1 once it zooms in", () => {
+    const onZoom = vi.fn();
+    const { rerender } = render(<Graph graph={graph} selection={null} onSelect={() => {}} onZoom={onZoom} />);
+    expect(onZoom).toHaveBeenCalledWith(1);
+    rerender(<Graph graph={graph} selection={null} onSelect={() => {}} onZoom={onZoom} focus={{ id: picked.id, key: 1 }} />);
+    expect(onZoom.mock.lastCall![0]).toBeGreaterThan(1.5);
   });
 });
 

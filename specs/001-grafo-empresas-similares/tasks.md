@@ -205,6 +205,12 @@ description: "Lista de tareas para el grafo de empresas similares"
 - [X] T057 En `web/src/components/Search.tsx` y `web/src/styles.css`, mostrar el fragmento resaltado bajo cada coincidencia por descripción y el aviso de que hay más resultados; prueba en `web/src/__tests__/Search.test.tsx`
 - [X] T058 Crear `web/src/components/LineKey.tsx`, con su estilo y prueba (`web/src/__tests__/LineKey.test.tsx`), y mostrarlo en la barra izquierda de `web/src/App.tsx`
 
+### Encabezado y rótulos de sector (FR-027, FR-028)
+
+- [X] T059 En `web/src/components/Graph.tsx`, rotular con el nombre las 10 empresas del sector con menor `rank` (todas si son menos de 10), sin tarjeta ni selección, con rótulos de tamaño constante en pantalla (`--k` en `web/src/styles.css`); pruebas en `web/src/__tests__/Graph.selection.test.tsx`
+- [X] T060 Mover los logos a `web/src/assets/`, crear `web/src/components/Header.tsx` (título `h1` "Emprendedores Alumni" centrado y los dos logos con texto alternativo) y `web/src/lib/header.ts` (`headerOpacity`: 1 hasta 1,05× y 0 desde 1,5×), con `web/src/vite-env.d.ts` para importar imágenes
+- [X] T061 En `web/src/components/Graph.tsx`, encuadrar el grafo bajo el encabezado (lee `--header-h`) y avisar el zoom con `onZoom`; en `web/src/App.tsx`, cambiar la opacidad del encabezado directo en el elemento; la tarjeta baja bajo el encabezado; pruebas en `web/src/__tests__/header.test.tsx`
+
 ### Verificación de la revisión
 
 - [X] T048 Ejecutar `npm test`, `npx tsc --noEmit` y `npm run build` en `web/` y comprobar en el navegador: grafo centrado, sector seleccionado desde la leyenda y desde la búsqueda, empresa buscada visible, y que el grafo vuelve a gris con el fondo

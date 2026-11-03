@@ -61,6 +61,9 @@ Abrir la dirección local que imprime Vite (normalmente `http://localhost:5173`)
 | 19 | Escribir "hamburguesas" en la búsqueda | Aparecen las empresas que la mencionan en su descripción, con la palabra resaltada, de más a menos completa | FR-020, FR-025 |
 | 20 | Escribir "ropa" y "ropa deportiva" | "ropa" no trae empresas por "Europa"; con dos palabras salen solo las que tienen ambas | FR-020 |
 | 21 | Mirar la parte baja de la barra izquierda | Explica la línea continua (se parecen) y la punteada (solo comparten sector) | FR-026 |
+| 22 | Abrir la página | Arriba, el título "Emprendedores Alumni" centrado, con el logo de La Sabana a la izquierda y el de Alumni a la derecha; el grafo queda debajo, sin tapar el encabezado | FR-028 |
+| 23 | Acercar con la rueda | El encabezado se desvanece gradualmente y desaparece; al alejar, reaparece | FR-028 |
+| 24 | Elegir un sector (por ejemplo "Moda y textiles") | Aparecen los nombres de las 10 empresas del sector con más información, sin tarjeta; con un sector de menos de 10, aparecen todas | FR-027 |
 | 18 | Pasar el cursor por varios nodos y revisar en `web/src/data/graph.json` que ningún nombre sea "No", "." ni "no tiene nombre" | No existen | FR-002, SC-007 |
 
 ## 5. Medición de fluidez (SC-002)

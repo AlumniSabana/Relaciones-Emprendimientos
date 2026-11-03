@@ -16,12 +16,16 @@ interface Props {
   selection: Selection;
   onSelect: (selection: Selection) => void;
   focus?: FocusRequest | null;
+  /** Se llama en cada movimiento de zoom con el acercamiento respecto al encuadre inicial (1 = inicial). */
+  onZoom?: (ratio: number) => void;
 }
 
 // Ancho que ocupa la tarjeta a la derecha (380 + márgenes): el centro útil del lienzo queda a su izquierda.
 const CARD_SPACE = 412;
 const FOCUS_SCALE = 1.6;
 const MAX_LABEL = 28; // las etiquetas largas se pisan; el nombre completo queda en la ayuda emergente
+const TOP_LABELS = 10; // con un sector elegido se rotulan las 10 empresas con más información
+const DEFAULT_HEADER = 96; // alto del encabezado si no se puede leer --header-h (styles.css)
 
 interface NodeProps {
   id: string;
@@ -67,10 +71,13 @@ const EdgeLine = memo(function EdgeLine({ x1, y1, x2, y2, stroke, fallback }: Ed
   return <line className={className} x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} />;
 });
 
-export default function Graph({ graph, selection, onSelect, focus }: Props) {
+export default function Graph({ graph, selection, onSelect, focus, onZoom }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const viewportRef = useRef<SVGGElement>(null);
   const behaviorRef = useRef<ZoomBehavior<SVGSVGElement, unknown>>();
+  const fitScaleRef = useRef(0);
+  const onZoomRef = useRef(onZoom);
+  onZoomRef.current = onZoom;
 
   const layout = useMemo(() => computeLayout(graph.nodes, graph.edges), [graph]);
   const adjacency = useMemo(() => buildAdjacency(graph.edges), [graph]);
@@ -86,13 +93,22 @@ export default function Graph({ graph, selection, onSelect, focus }: Props) {
       // Con 0 (por defecto) cualquier temblor del ratón cuenta como arrastre y se pierde el click.
       .clickDistance(4)
       .extent(() => [[0, 0], [...size()]])
-      .on("zoom", (event) => viewportRef.current?.setAttribute("transform", event.transform.toString()));
+      .on("zoom", (event) => {
+        viewportRef.current?.setAttribute("transform", event.transform.toString());
+        // Las etiquetas compensan el zoom (styles.css) para leerse igual con el grafo completo o acercado.
+        svg.style.setProperty("--k", String(event.transform.k));
+        if (fitScaleRef.current) onZoomRef.current?.(event.transform.k / fitScaleRef.current);
+      });
     behaviorRef.current = behavior;
     const selection = select(svg).call(behavior).on("dblclick.zoom", null);
     const fit = () => {
       const [width, height] = size();
-      const scale = Math.min(width, height) / (2 * (MAX_RADIUS + 40));
-      selection.call(behavior.transform, zoomIdentity.translate(width / 2, height / 2).scale(scale));
+      // El encabezado ocupa la franja de arriba: el grafo se centra en lo que queda libre.
+      const top = parseFloat(getComputedStyle(svg).getPropertyValue("--header-h")) || DEFAULT_HEADER;
+      const usable = Math.max(height - top, 1);
+      const scale = Math.min(width, usable) / (2 * (MAX_RADIUS + 40));
+      fitScaleRef.current = scale;
+      selection.call(behavior.transform, zoomIdentity.translate(width / 2, top + usable / 2).scale(scale));
     };
     // Se encuadra una sola vez, cuando el lienzo ya tiene tamaño real.
     let observer: ResizeObserver | undefined;
@@ -165,6 +181,11 @@ export default function Graph({ graph, selection, onSelect, focus }: Props) {
   const focusEdges = graph.edges.filter((e) => edgeInFocus(e.a, e.b));
   const focusNodes = graph.nodes.filter(inFocus);
   const baseNodes = graph.nodes.filter((n) => !inFocus(n));
+  // Con una empresa elegida se rotulan ella y sus vecinas; con un sector, las 10 con más información
+  // (rank más bajo), con el nombre como si estuvieran seleccionadas pero sin abrir su tarjeta.
+  const labelNodes = selectedCompany
+    ? focusNodes
+    : [...focusNodes].sort((a, b) => a.rank - b.rank).slice(0, TOP_LABELS);
 
   return (
     <svg ref={svgRef} className="graph" onClick={() => onSelect(null)}>
@@ -196,12 +217,11 @@ export default function Graph({ graph, selection, onSelect, focus }: Props) {
               />
             ))}
             {focusNodes.map(renderNode)}
-            {selectedCompany &&
-              focusNodes.map((n) => (
-                <text key={n.id} className="label" x={pos(n.id).x} y={pos(n.id).y + 20}>
-                  {n.name.length > MAX_LABEL ? `${n.name.slice(0, MAX_LABEL - 1)}…` : n.name}
-                </text>
-              ))}
+            {labelNodes.map((n) => (
+              <text key={n.id} className="label" x={pos(n.id).x} y={pos(n.id).y + 20}>
+                {n.name.length > MAX_LABEL ? `${n.name.slice(0, MAX_LABEL - 1)}…` : n.name}
+              </text>
+            ))}
           </g>
         )}
       </g>
