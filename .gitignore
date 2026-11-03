@@ -1,0 +1,9 @@
+web/node_modules/
+web/dist/
+__pycache__/
+.pytest_cache/
+.venv/
+*.log
+.env*
+.DS_Store
+Thumbs.db
