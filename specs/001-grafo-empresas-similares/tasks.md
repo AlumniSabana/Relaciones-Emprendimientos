@@ -221,7 +221,7 @@ description: "Lista de tareas para el grafo de empresas similares"
 
 ### Filtros por ubicación, tamaño y conexiones (FR-029 a FR-032, D2e)
 
-- [X] T067 En `tools/build_graph.py`, añadir a cada empresa `department`, `city` y `size` (`filter_attributes`, `SIZE_LABELS`; Bogotá, D.C. cuenta como departamento) y cerrar el hueco de parejas repetidas en `_link_isolated`; pruebas en `tests/test_build_graph.py`
+- [X] T067 En `tools/build_graph.py`, añadir a cada empresa `department`, `city` y `size` (`filter_attributes`, `SIZE_LABELS`; Bogotá es una ciudad de Cundinamarca) y cerrar el hueco de parejas repetidas en `_link_isolated`; pruebas en `tests/test_build_graph.py`
 - [X] T068 Crear `web/src/lib/filters.ts` (`applyFilter`, `filterOptions`, respaldo por sector en el grupo) y `web/src/lib/connections.ts` (`visibleConnections`, niveles de cercanía), con pruebas en `web/src/__tests__/filters.test.ts` y `connections.test.ts`
 - [X] T069 En `web/src/lib/layout.ts`, escalar el radio con el número de empresas (`layoutRadius`) y, en `web/src/components/Graph.tsx`, reencuadrar al cambiar el grafo, encuadrar con el radio real, acercar relativo al encuadre y aplicar `neighborFilter`
 - [X] T070 Crear `web/src/components/Filters.tsx` (departamento, ciudad, tamaño, "Quitar filtros") y `ConnectionFilters.tsx` (cercanía y mismo tamaño, dentro de la tarjeta), y conectarlos en `web/src/App.tsx` (grafo, leyenda y búsqueda sobre el grupo; selección fuera del grupo se cierra; el filtro de conexiones se reinicia); pruebas en `Filters.test.tsx` y `filters.app.test.tsx`

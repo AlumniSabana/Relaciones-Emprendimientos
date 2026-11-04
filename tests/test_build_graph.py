@@ -362,11 +362,13 @@ def test_no_company_is_left_without_connections():
 @pytest.mark.parametrize("row,expected", [
     ({"Ciudad": "Chía", "Departamento": "Cundinamarca", "Tamaño": "Pequeña 1-50 empleados"},
      {"department": "Cundinamarca", "city": "Chía", "size": "Pequeña (1-50 empleados)"}),
-    # Bogotá es también departamento: no se mezcla con Cundinamarca aunque la persona lo haya declarado así.
+    # Bogotá es una ciudad de Cundinamarca, aunque la persona la haya declarado como departamento.
     ({"Ciudad": "Bogotá, D.C.", "Departamento": "Cundinamarca", "Tamaño": "Mediana 50-500 empleados"},
-     {"department": "Bogotá, D.C.", "city": "Bogotá, D.C.", "size": "Mediana (50-500 empleados)"}),
+     {"department": "Cundinamarca", "city": "Bogotá, D.C.", "size": "Mediana (50-500 empleados)"}),
     ({"Ciudad": "Bogotá, D.C.", "Departamento": "Bogotá, D.C.", "Tamaño": "Grande más de 500 empleados"},
-     {"department": "Bogotá, D.C.", "city": "Bogotá, D.C.", "size": "Grande (más de 500 empleados)"}),
+     {"department": "Cundinamarca", "city": "Bogotá, D.C.", "size": "Grande (más de 500 empleados)"}),
+    ({"Ciudad": "", "Departamento": "Bogotá, D.C."}, {"department": "Cundinamarca"}),
+    ({"Ciudad": "Chía", "Departamento": "Bogotá, D.C."}, {"department": "Cundinamarca", "city": "Chía"}),
     # Relleno y códigos sin significado documentado no son ubicación ni tamaño.
     ({"Ciudad": "NOINFORMA", "Departamento": "Meta", "Tamaño": "T1"}, {"department": "Meta"}),
     ({"Ciudad": "", "Departamento": "", "Tamaño": "3"}, {}),
@@ -392,8 +394,8 @@ def test_real_graph_has_consistent_locations_and_sizes():
     graph, _ = bg.build_graph(BASE_CSV, SECTOR_CSV, extra_csvs=[NEW_CSV])
     nodes = graph["nodes"]
     in_bogota = [n for n in nodes if n.get("city") == bg.BOGOTA]
-    assert len(in_bogota) > 300 and all(n["department"] == bg.BOGOTA for n in in_bogota)
-    assert not [n for n in nodes if n.get("department") == "Cundinamarca" and n.get("city") == bg.BOGOTA]
+    assert len(in_bogota) > 300 and all(n["department"] == bg.CUNDINAMARCA for n in in_bogota)
+    assert bg.BOGOTA not in {n.get("department") for n in nodes}, "Bogotá no es un departamento"
     assert {n["size"] for n in nodes if "size" in n} == set(bg.SIZE_LABELS.values())
     assert all("city" not in n or "department" in n for n in nodes), "toda ciudad tiene departamento"
 

@@ -58,6 +58,7 @@ PLACEHOLDERS = {
 }
 
 BOGOTA = "Bogotá, D.C."
+CUNDINAMARCA = "Cundinamarca"
 # Tamaños para filtrar: solo el texto explícito de "Tamaño". Los códigos ("1", "3", "T1" y los T1 a T4 de
 # "Tamaño Empresa") no tienen significado documentado, así que no se interpretan.
 # shortcut: cubre ~300 de 615 empresas; ampliar este mapa cuando se confirme qué significa cada código.
@@ -191,11 +192,13 @@ def load_companies(base_csv, sector_csv, extra_csvs=()):
 def filter_attributes(row):
     """Departamento, ciudad y tamaño para los filtros de la app (solo los que tienen dato).
 
-    Bogotá, D.C. es también un departamento (código 11 de DANE): 233 empresas de Bogotá declararon
-    "Cundinamarca", y así "Cundinamarca" no mezcla la capital con el resto.
+    Bogotá es una ciudad de Cundinamarca: 189 empresas la declararon como departamento y 233 como ciudad
+    de Cundinamarca; para filtrar, toda empresa de Bogotá cuenta como de Cundinamarca.
     """
     city = clean_value(row.get("Ciudad"), "Ciudad")
-    department = BOGOTA if city == BOGOTA else clean_value(row.get("Departamento"), "Departamento")
+    department = clean_value(row.get("Departamento"), "Departamento")
+    if BOGOTA in (city, department):
+        department = CUNDINAMARCA
     size = SIZE_LABELS.get(normalize(clean_value(row.get("Tamaño"), "Tamaño") or ""))
     return {k: v for k, v in (("department", department), ("city", city), ("size", size)) if v}
 

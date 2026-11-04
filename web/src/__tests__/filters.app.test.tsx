@@ -22,15 +22,25 @@ describe("graph filters (location and size)", () => {
     expect(screen.getByText(`Mostrando ${expected} de ${graph.nodes.length} empresas`)).toBeInTheDocument();
   });
 
-  it("filters by department, and Bogotá is its own department apart from Cundinamarca", () => {
+  it("filters by department, and Bogotá is a city of Cundinamarca", () => {
     const { container } = render(<App />);
-    choose("Departamento", "Bogotá, D.C.");
-    expect(circles(container)).toBe(graph.nodes.filter((n) => n.department === "Bogotá, D.C.").length);
+    const departments = within(screen.getByLabelText("Departamento"));
+    expect(departments.queryByRole("option", { name: /^Bogotá/ })).toBeNull();
     choose("Departamento", "Cundinamarca");
-    expect(circles(container)).toBe(graph.nodes.filter((n) => n.department === "Cundinamarca").length);
+    const inCundinamarca = graph.nodes.filter((n) => n.department === "Cundinamarca");
+    expect(circles(container)).toBe(inCundinamarca.length);
+    expect(inCundinamarca.some((n) => n.city === "Bogotá, D.C.")).toBe(true);
     const cities = within(screen.getByLabelText("Ciudad"));
-    expect(cities.queryByRole("option", { name: /^Bogotá/ })).toBeNull();
+    expect(cities.getByRole("option", { name: /^Bogotá, D\.C\./ })).toBeInTheDocument();
     expect(cities.getByRole("option", { name: /^Chía/ })).toBeInTheDocument();
+  });
+
+  it("filters Bogotá by city, which leaves out the rest of Cundinamarca", () => {
+    const { container } = render(<App />);
+    choose("Ciudad", "Bogotá, D.C.");
+    const inBogota = graph.nodes.filter((n) => n.city === "Bogotá, D.C.").length;
+    expect(circles(container)).toBe(inBogota);
+    expect(inBogota).toBeLessThan(graph.nodes.filter((n) => n.department === "Cundinamarca").length);
   });
 
   it("filters by size and combines it with the location", () => {
@@ -38,8 +48,8 @@ describe("graph filters (location and size)", () => {
     const medium = "Mediana (50-500 empleados)";
     choose("Tamaño de empresa", medium);
     expect(circles(container)).toBe(graph.nodes.filter((n) => n.size === medium).length);
-    choose("Departamento", "Bogotá, D.C.");
-    expect(circles(container)).toBe(graph.nodes.filter((n) => n.size === medium && n.department === "Bogotá, D.C.").length);
+    choose("Departamento", "Cundinamarca");
+    expect(circles(container)).toBe(graph.nodes.filter((n) => n.size === medium && n.department === "Cundinamarca").length);
   });
 
   it("makes legend counts follow the filter", () => {
@@ -136,9 +146,9 @@ describe("connection filters of the selected company", () => {
 
   it("works inside a filtered graph", () => {
     const { container } = render(<App />);
-    choose("Departamento", "Bogotá, D.C.");
-    const inBogota = graph.nodes.find((n) => n.department === "Bogotá, D.C.")!;
-    fireEvent.click(circle(container, inBogota.id));
+    choose("Departamento", "Cundinamarca");
+    const inCundinamarca = graph.nodes.find((n) => n.department === "Cundinamarca")!;
+    fireEvent.click(circle(container, inCundinamarca.id));
     choose("Cercanía", "0.5");
     expect(screen.getByText(/Mostrando \d+ de \d+ conexiones/)).toBeInTheDocument();
   });
