@@ -18,8 +18,15 @@ interface SimNode extends SimulationNodeDatum {
   rank: number;
 }
 
-export const MAX_RADIUS = 450;
+export const MAX_RADIUS = 450; // radio del grafo con ~600 empresas
+const REFERENCE_NODES = 600;
+const MIN_RADIUS = 60;
 const TICKS = 120;
+
+/** Radio del grafo según cuántas empresas tiene: la misma densidad que el grafo completo. */
+export function layoutRadius(count: number): number {
+  return Math.max(MIN_RADIUS, MAX_RADIUS * Math.sqrt(count / REFERENCE_NODES));
+}
 
 // Generador fijo para que la disposición sea la misma en cada carga y en las pruebas.
 function seededRandom() {
@@ -52,6 +59,7 @@ function equalizeAngles(nodes: SimNode[]) {
 
 /** Posiciones del grafo: rank 0 (más campos con dato) en el centro, rank 1 en el borde. */
 export function computeLayout(nodes: Company[], edges: Edge[]): Map<string, Point> {
+  const radius = layoutRadius(nodes.length);
   const simNodes: SimNode[] = nodes.map((n) => ({ id: n.id, rank: n.rank }));
   const links = edges.map((e) => ({ source: e.a, target: e.b }));
   const simulation = forceSimulation(simNodes)
@@ -62,7 +70,7 @@ export function computeLayout(nodes: Company[], edges: Edge[]): Map<string, Poin
     .force("charge", forceManyBody().strength(-6))
     .force("collide", forceCollide(7))
     // Raíz cuadrada: reparte las empresas de forma pareja por área y no apiladas en el centro.
-    .force("radial", forceRadial<SimNode>((d) => MAX_RADIUS * Math.sqrt(d.rank), 0, 0).strength(0.8))
+    .force("radial", forceRadial<SimNode>((d) => radius * Math.sqrt(d.rank), 0, 0).strength(0.8))
     .stop();
   for (let i = 0; i < TICKS; i++) simulation.tick();
   equalizeAngles(simNodes);

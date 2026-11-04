@@ -1,4 +1,4 @@
-import { computeLayout } from "../lib/layout";
+import { computeLayout, layoutRadius } from "../lib/layout";
 import type { Company, Edge } from "../types";
 
 function synthetic(n: number) {
@@ -47,6 +47,17 @@ describe("computeLayout", () => {
     const cx = [...layout.values()].reduce((s, p) => s + p.x, 0) / layout.size;
     const cy = [...layout.values()].reduce((s, p) => s + p.y, 0) / layout.size;
     expect(Math.hypot(cx, cy)).toBeLessThan(25);
+  });
+
+  it("scales the graph with how many companies it has, keeping the same density", () => {
+    const radius = (n: number) => {
+      const { nodes, edges } = synthetic(n);
+      return Math.max(...[...computeLayout(nodes, edges).values()].map((p) => Math.hypot(p.x, p.y)));
+    };
+    const [few, many] = [radius(40), radius(400)];
+    expect(few).toBeLessThan(many / 2);
+    expect(layoutRadius(600)).toBeCloseTo(450);
+    expect(layoutRadius(1)).toBeGreaterThanOrEqual(60);
   });
 
   it("returns a finite position for every node", () => {

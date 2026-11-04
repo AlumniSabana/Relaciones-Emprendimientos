@@ -9,6 +9,10 @@ export interface Company {
   sector: string;
   rank: number;
   fields: [string, string][];
+  /** Para los filtros; solo están si la empresa tiene el dato. */
+  department?: string;
+  city?: string;
+  size?: string;
 }
 
 export interface Edge {

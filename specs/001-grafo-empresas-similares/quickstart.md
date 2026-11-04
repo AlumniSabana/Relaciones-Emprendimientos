@@ -72,6 +72,12 @@ Abrir la dirección local que imprime Vite (normalmente `http://localhost:5173`)
 | 22 | Abrir la página | Arriba, el título "Emprendedores Alumni" centrado, con el logo de La Sabana a la izquierda y el de Alumni a la derecha; el grafo queda debajo, sin tapar el encabezado | FR-028 |
 | 23 | Acercar con la rueda | El encabezado se desvanece gradualmente y desaparece; al alejar, reaparece | FR-028 |
 | 24 | Elegir un sector (por ejemplo "Moda y textiles") | Aparecen los nombres de las 10 empresas del sector con más información, sin tarjeta; con un sector de menos de 10, aparecen todas | FR-027 |
+| 25 | Abrir "Filtrar el grafo" y elegir la ciudad "Chía" | El grafo pasa a tener solo las 55 empresas de Chía, reencuadrado; la leyenda suma 55; "Mostrando 55 de 615 empresas" | FR-029, SC-013 |
+| 26 | Elegir el departamento "Cundinamarca" y luego "Bogotá, D.C." | Cundinamarca (121) no incluye a Bogotá (422); la lista de ciudades cambia con el departamento | FR-029, FR-032 |
+| 27 | Combinar ciudad o departamento con un tamaño ("Mediana") | Quedan solo las empresas que cumplen ambos | FR-029 |
+| 28 | Con un filtro activo, mirar las líneas | Las empresas sin conexiones en el grupo se unen con líneas punteadas | FR-030 |
+| 29 | Seleccionar una empresa y, en su tarjeta, elegir cercanía "Alta" | "Mostrando N de M conexiones"; solo las de similitud 0,50 o más quedan coloreadas | FR-031, SC-014 |
+| 30 | Marcar "Solo del mismo tamaño" | Solo quedan las conexiones de empresas con el mismo tamaño; está desactivado si la empresa no tiene tamaño | FR-031 |
 | 18 | Pasar el cursor por varios nodos y revisar en `web/src/data/graph.json` que ningún nombre sea "No", "." ni "no tiene nombre" | No existen | FR-002, SC-007 |
 
 ## 5. Medición de fluidez (SC-002)

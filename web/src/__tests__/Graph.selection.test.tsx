@@ -3,7 +3,8 @@ import { useState } from "react";
 import Graph, { type FocusRequest } from "../components/Graph";
 import data from "../data/graph.json";
 import { buildAdjacency, sectorColors } from "../lib/graph";
-import type { Graph as GraphData, Selection } from "../types";
+import type { NeighborFilter } from "../lib/connections";
+import type { Company, Graph as GraphData, Selection } from "../types";
 
 const graph = data as GraphData;
 const colors = sectorColors(graph.sectors);
@@ -14,13 +15,15 @@ function Harness({
   initial = null,
   focus = null,
   data = graph,
+  neighborFilter,
 }: {
   initial?: Selection;
   focus?: FocusRequest | null;
   data?: GraphData;
+  neighborFilter?: NeighborFilter;
 }) {
   const [selection, setSelection] = useState<Selection>(initial);
-  return <Graph graph={data} selection={selection} onSelect={setSelection} focus={focus} />;
+  return <Graph graph={data} selection={selection} onSelect={setSelection} focus={focus} neighborFilter={neighborFilter} />;
 }
 
 const circle = (container: HTMLElement, id: string) =>
@@ -159,6 +162,76 @@ describe("Graph sector mode", () => {
     const { container } = render(<Harness initial={{ type: "sector", name: sector.name }} />);
     expect(container.querySelector(".card")).toBeNull();
     expect(container.querySelector("circle.selected")).toBeNull();
+  });
+});
+
+describe("Graph connection filter", () => {
+  const co = (id: string, sector: string, size?: string): Company => ({ id, name: id, sector, rank: 0.5, fields: [], size });
+  const small: GraphData = {
+    generated: "2026-11-04",
+    sectors: [{ name: "S1", color: "#e6194b" }, { name: "S2", color: "#3cb44b" }],
+    nodes: [co("A", "S1", "Pequeña"), co("B", "S1", "Pequeña"), co("C", "S2", "Mediana"), co("D", "S1", "Pequeña"), co("E", "S2")],
+    edges: [
+      { a: "A", b: "B", w: 0.6 },
+      { a: "A", b: "C", w: 0.45 },
+      { a: "A", b: "D", w: 0.2 },
+      { a: "A", b: "E", w: 0.9 },
+    ],
+  };
+  const painted = (container: HTMLElement) => [...container.querySelectorAll("circle[fill]")].map((c) => (c as SVGElement).dataset.id).sort();
+
+  it("highlights every connection of the selected company when there is no filter", () => {
+    const { container } = render(<Harness data={small} initial={{ type: "company", id: "A" }} />);
+    expect(painted(container)).toEqual(["A", "B", "C", "D", "E"]);
+    expect(container.querySelectorAll("line.active")).toHaveLength(4);
+  });
+
+  it("highlights only the closest connections, and dims the others", () => {
+    const { container } = render(
+      <Harness data={small} initial={{ type: "company", id: "A" }} neighborFilter={{ minCloseness: 0.5, sameSize: false }} />,
+    );
+    expect(painted(container)).toEqual(["A", "B", "E"]);
+    expect(container.querySelectorAll("line.active")).toHaveLength(2);
+    expect(container.querySelector('circle[data-id="C"]')!.closest(".dimmed")).not.toBeNull();
+  });
+
+  it("highlights only the companies of the same size, and not the ones without a size", () => {
+    const { container } = render(
+      <Harness data={small} initial={{ type: "company", id: "A" }} neighborFilter={{ minCloseness: 0, sameSize: true }} />,
+    );
+    expect(painted(container)).toEqual(["A", "B", "D"]);
+  });
+
+  it("combines closeness and size", () => {
+    const { container } = render(
+      <Harness data={small} initial={{ type: "company", id: "A" }} neighborFilter={{ minCloseness: 0.5, sameSize: true }} />,
+    );
+    expect(painted(container)).toEqual(["A", "B"]);
+  });
+});
+
+describe("Graph with a new set of companies", () => {
+  it("fits the view again when the graph changes, as if it were a new one", () => {
+    const onZoom = vi.fn();
+    const subset: GraphData = { ...graph, nodes: graph.nodes.slice(0, 40), edges: [] };
+    const { rerender } = render(<Graph graph={graph} selection={null} onSelect={() => {}} onZoom={onZoom} />);
+    const first = onZoom.mock.calls.length;
+    rerender(<Graph graph={subset} selection={null} onSelect={() => {}} onZoom={onZoom} />);
+    expect(onZoom.mock.calls.length).toBeGreaterThan(first);
+    expect(onZoom.mock.lastCall![0]).toBe(1);
+  });
+
+  it("draws exactly the companies it is given", () => {
+    const subset: GraphData = { ...graph, nodes: graph.nodes.slice(0, 40), edges: [] };
+    const { container } = render(<Graph graph={subset} selection={null} onSelect={() => {}} />);
+    expect(container.querySelectorAll("circle")).toHaveLength(40);
+  });
+
+  it("zooms in on a company relative to the fit, so a small graph is not zoomed out", () => {
+    const subset: GraphData = { ...graph, nodes: graph.nodes.slice(0, 12), edges: [] };
+    const onZoom = vi.fn();
+    render(<Graph graph={subset} selection={null} onSelect={() => {}} onZoom={onZoom} focus={{ id: subset.nodes[0].id, key: 1 }} />);
+    expect(onZoom.mock.lastCall![0]).toBeGreaterThan(1.5);
   });
 });
 

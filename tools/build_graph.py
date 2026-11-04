@@ -57,6 +57,16 @@ PLACEHOLDERS = {
     "ninguna", "no aplica",
 }
 
+BOGOTA = "Bogotá, D.C."
+# Tamaños para filtrar: solo el texto explícito de "Tamaño". Los códigos ("1", "3", "T1" y los T1 a T4 de
+# "Tamaño Empresa") no tienen significado documentado, así que no se interpretan.
+# shortcut: cubre ~300 de 615 empresas; ampliar este mapa cuando se confirme qué significa cada código.
+SIZE_LABELS = {
+    "pequena 1-50 empleados": "Pequeña (1-50 empleados)",
+    "mediana 50-500 empleados": "Mediana (50-500 empleados)",
+    "grande mas de 500 empleados": "Grande (más de 500 empleados)",
+}
+
 GRAYS = {"#c8ccd0", "#d0d4d8", "#9aa0a6", "#808080", "#a9a9a9", "#d3d3d3"}
 # shortcut: 16 colores elegidos a ojo, no optimizados perceptualmente; revisar si se añaden sectores.
 PALETTE = [
@@ -178,6 +188,18 @@ def load_companies(base_csv, sector_csv, extra_csvs=()):
     return valid.to_dict("records"), stats
 
 
+def filter_attributes(row):
+    """Departamento, ciudad y tamaño para los filtros de la app (solo los que tienen dato).
+
+    Bogotá, D.C. es también un departamento (código 11 de DANE): 233 empresas de Bogotá declararon
+    "Cundinamarca", y así "Cundinamarca" no mezcla la capital con el resto.
+    """
+    city = clean_value(row.get("Ciudad"), "Ciudad")
+    department = BOGOTA if city == BOGOTA else clean_value(row.get("Departamento"), "Departamento")
+    size = SIZE_LABELS.get(normalize(clean_value(row.get("Tamaño"), "Tamaño") or ""))
+    return {k: v for k, v in (("department", department), ("city", city), ("size", size)) if v}
+
+
 def completeness_ranks(counts):
     """Posición relativa de 0 (más campos) a 1 (menos); desempate por id."""
     order = sorted(counts, key=lambda i: (-counts[i], i))
@@ -214,6 +236,7 @@ def _link_isolated(sim, ids, sectors, ranks, degree, edges, rejected=frozenset()
     """
     isolated = [i for i in range(len(ids)) if degree[i] == 0]
     connected = set(range(len(ids))) - set(isolated)
+    joined = {(e["a"], e["b"]) for e in edges}  # dos empresas sueltas del mismo sector no se unen dos veces
     for i in isolated:
         peers = [j for j in range(len(ids)) if j != i and sectors[j] == sectors[i]
                  and tuple(sorted((ids[i], ids[j]))) not in rejected]
@@ -223,12 +246,13 @@ def _link_isolated(sim, ids, sectors, ranks, degree, edges, rejected=frozenset()
         for j in pool:
             if linked == FALLBACK_LINKS:
                 break
-            if degree[j] >= MAX_DEGREE:
+            a, b = sorted((ids[i], ids[j]))
+            if degree[j] >= MAX_DEGREE or (a, b) in joined:
                 continue
+            joined.add((a, b))
             degree[i] += 1
             degree[j] += 1
             linked += 1
-            a, b = sorted((ids[i], ids[j]))
             edges.append({"a": a, "b": b, "w": round(float(sim[i, j]), 3), "fallback": True})
         connected.add(i)
 
@@ -295,7 +319,8 @@ def build_graph(base_csv, sector_csv, validation_csv=None, extra_csvs=()):
     fields = {r[ID_COL]: build_fields(r, discarded) for r in rows}
     ranks = completeness_ranks({i: len(f) for i, f in fields.items()})
     nodes = [{"id": r[ID_COL], "name": r[NAME_COL], "sector": r["_sector"],
-              "rank": round(ranks[r[ID_COL]], 4), "fields": fields[r[ID_COL]]} for r in rows]
+              "rank": round(ranks[r[ID_COL]], 4), "fields": fields[r[ID_COL]], **filter_attributes(r)}
+             for r in rows]
     texts = [" ".join(filter(None, (clean_value(r.get(c), c) for c in SIMILARITY_COLUMNS)))
              for r in rows]
     edges = build_edges(texts, [n["id"] for n in nodes], [n["sector"] for n in nodes],

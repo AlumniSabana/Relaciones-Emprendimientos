@@ -22,7 +22,10 @@ Los tipos que la app usa para leerlo (`web/src/types.ts`) deben coincidir con es
 
 ```ts
 export interface Sector { name: string; color: string }
-export interface Company { id: string; name: string; sector: string; rank: number; fields: [string, string][] }
+export interface Company {
+  id: string; name: string; sector: string; rank: number; fields: [string, string][];
+  department?: string; city?: string; size?: string; // para los filtros; solo si hay dato
+}
 export interface Edge { a: string; b: string; w: number; fallback?: boolean }
 export interface Graph { generated: string; sectors: Sector[]; nodes: Company[]; edges: Edge[] }
 ```
@@ -47,6 +50,8 @@ export interface Graph { generated: string; sectors: Sector[]; nodes: Company[];
 | Elegir un resultado de búsqueda | Un sector equivale a hacer clic en él en la barra; una empresa equivale a hacerle clic y además la deja centrada y acercada en la parte libre del lienzo |
 | Clic en el fondo o en cerrar | Estado inicial |
 | Conexión de respaldo (`fallback: true`) | Se dibuja punteada, en gris y también al resaltarla, para distinguirla de las conexiones por similitud |
+| Elegir departamento, ciudad o tamaño en "Filtrar el grafo" | Grafo nuevo solo con esas empresas, reencuadrado; leyenda y búsqueda limitadas a ellas; "Mostrando N de M empresas"; "Quitar filtros" lo deshace. Las que queden sueltas se unen con línea punteada |
+| Cercanía o "solo del mismo tamaño" en la tarjeta de una empresa | Solo las conexiones que cumplen siguen coloreadas y resaltadas; las demás pasan al fondo atenuado; "Mostrando N de M conexiones" |
 | Pasar el cursor por un nodo | Su nombre se ve como ayuda emergente (sin cambiar el estado) |
 | Arrastrar / rueda | Mover y acercar el grafo; no cambia la selección |
 

@@ -1,12 +1,15 @@
+import type { ReactNode } from "react";
 import type { Company } from "../types";
 
 interface Props {
   company: Company;
   color: string;
   onClose: () => void;
+  /** Controles bajo el encabezado (por ejemplo, el filtro de conexiones). */
+  children?: ReactNode;
 }
 
-export default function Card({ company, color, onClose }: Props) {
+export default function Card({ company, color, onClose, children }: Props) {
   return (
     <aside className="card" style={{ borderColor: color }}>
       <header>
@@ -20,6 +23,7 @@ export default function Card({ company, color, onClose }: Props) {
           ×
         </button>
       </header>
+      {children}
       <dl>
         {company.fields.map(([label, value]) => (
           <div key={label}>

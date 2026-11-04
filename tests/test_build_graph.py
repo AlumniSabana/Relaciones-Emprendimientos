@@ -358,6 +358,46 @@ def test_no_company_is_left_without_connections():
     assert linked_names(graph, "Hotel El Dorado Plaza")  # solo decía "Hoteleria"
 
 
+# Filtros por ubicación y tamaño
+@pytest.mark.parametrize("row,expected", [
+    ({"Ciudad": "Chía", "Departamento": "Cundinamarca", "Tamaño": "Pequeña 1-50 empleados"},
+     {"department": "Cundinamarca", "city": "Chía", "size": "Pequeña (1-50 empleados)"}),
+    # Bogotá es también departamento: no se mezcla con Cundinamarca aunque la persona lo haya declarado así.
+    ({"Ciudad": "Bogotá, D.C.", "Departamento": "Cundinamarca", "Tamaño": "Mediana 50-500 empleados"},
+     {"department": "Bogotá, D.C.", "city": "Bogotá, D.C.", "size": "Mediana (50-500 empleados)"}),
+    ({"Ciudad": "Bogotá, D.C.", "Departamento": "Bogotá, D.C.", "Tamaño": "Grande más de 500 empleados"},
+     {"department": "Bogotá, D.C.", "city": "Bogotá, D.C.", "size": "Grande (más de 500 empleados)"}),
+    # Relleno y códigos sin significado documentado no son ubicación ni tamaño.
+    ({"Ciudad": "NOINFORMA", "Departamento": "Meta", "Tamaño": "T1"}, {"department": "Meta"}),
+    ({"Ciudad": "", "Departamento": "", "Tamaño": "3"}, {}),
+    ({"Tamaño": "No informa"}, {}),
+])
+def test_filter_attributes(row, expected):
+    assert bg.filter_attributes(row) == expected
+
+
+def test_nodes_carry_location_and_size_only_when_they_have_them(tmp_path):
+    base, sector = write_csvs(tmp_path, [
+        {"id": "A1", "name": "Con datos", "sector": "S", "extra": {"Ciudad": "Chía", "Departamento": "Cundinamarca",
+                                                                  "Tamaño": "Pequeña 1-50 empleados"}},
+        {"id": "A2", "name": "Sin datos", "sector": "S"},
+    ])
+    nodes = {n["id"]: n for n in bg.build_graph(base, sector)[0]["nodes"]}
+    assert {k for k in nodes["A1"] if k in ("department", "city", "size")} == {"department", "city", "size"}
+    assert not {"department", "city", "size"} & set(nodes["A2"])
+
+
+@pytest.mark.skipif(not (BASE_CSV.exists() and SECTOR_CSV.exists()), reason="faltan los CSV")
+def test_real_graph_has_consistent_locations_and_sizes():
+    graph, _ = bg.build_graph(BASE_CSV, SECTOR_CSV, extra_csvs=[NEW_CSV])
+    nodes = graph["nodes"]
+    in_bogota = [n for n in nodes if n.get("city") == bg.BOGOTA]
+    assert len(in_bogota) > 300 and all(n["department"] == bg.BOGOTA for n in in_bogota)
+    assert not [n for n in nodes if n.get("department") == "Cundinamarca" and n.get("city") == bg.BOGOTA]
+    assert {n["size"] for n in nodes if "size" in n} == set(bg.SIZE_LABELS.values())
+    assert all("city" not in n or "department" in n for n in nodes), "toda ciudad tiene departamento"
+
+
 # Empresas nuevas (Graduados_participantes_Sem_Inn_2026_2.xlsx → Emprendedores_nuevos_2026_2_limpia.csv)
 def test_extra_bases_are_added_and_missing_ones_ignored(tmp_path):
     base, sector = write_csvs(tmp_path, [{"id": "A1", "name": "Empresa Uno", "sector": "Moda"}])
@@ -473,6 +513,18 @@ def test_fallback_ties_go_to_the_most_complete_companies():
     ranks = [1 - i / 100 for i in range(10)] + [0.5] + [0.9] * 109  # A9 es la más completa
     mine = [e for e in bg.build_edges(texts, ids, sectors, ranks) if "L0" in (e["a"], e["b"])]
     assert {e["b"] if e["a"] == "L0" else e["a"] for e in mine} == {"A9", "A8", "A7"}
+
+
+def test_fallback_never_repeats_a_pair_when_a_whole_sector_is_loose():
+    # Las tres de S0 no comparten palabras con nadie y no hay ninguna conectada en su sector.
+    texts = [f"unico{i}" for i in range(120)]
+    ids = [f"E{i:03d}" for i in range(120)]
+    sectors = ["S0"] * 3 + [f"Z{i}" for i in range(117)]
+    edges = bg.build_edges(texts, ids, sectors)
+    pairs = [(e["a"], e["b"]) for e in edges if e["a"] in ("E000", "E001", "E002")]
+    assert pairs and len(pairs) == len(set(pairs))
+    assert len(edges) == len({(e["a"], e["b"]) for e in edges})
+    assert {k for p in pairs for k in p} == {"E000", "E001", "E002"}
 
 
 def test_fallback_does_not_recreate_rejected_pairs():

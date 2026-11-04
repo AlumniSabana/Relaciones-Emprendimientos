@@ -16,6 +16,7 @@
 - Q: ¿Qué campos debe mostrar la tarjeta? → A: Todos los que tengan dato, excepto "Descripción" (queda cubierta por "Descripción completa") y los identificadores internos (Eloqua Unique Identifier, Mapped to Contact).
 - Q: ¿Cuántas conexiones como máximo por empresa? → A: Hasta 10 (se definió en 5 y se subió a 10 al revisar casos concretos).
 - Q: ¿Qué se hace con "Volumen de Ingresos" y "Tamaño Empresa" (códigos como V1, T1)? → A: No se muestran en la tarjeta.
+- Q (revisión de filtros): ¿Qué se añade? → A: Filtros del grafo por departamento, ciudad y tamaño de empresa (arman un grafo nuevo con esas empresas), y filtros de cercanía y mismo tamaño sobre las conexiones de la empresa seleccionada. No se filtra por país.
 - Q (revisión de la presentación): ¿Qué se añade? → A: Al elegir un sector se rotulan las 10 empresas con más información (solo el nombre, sin tarjeta); un encabezado con título centrado "Emprendedores Alumni" y los dos logos que se desvanece al acercar.
 - Q (revisión de la búsqueda): ¿Se puede buscar por palabras de la descripción? → A: Sí, y las empresas con información más completa salen primero. La barra izquierda explica la línea continua y la punteada.
 - Q (revisión de conexiones): ¿Cómo se validan las conexiones? → A: Cada conexión por similitud se revisó por significado (ok, dudosa o mala) y el resultado vive en `Conexiones_validadas.csv`, editable. Se quitan las malas y las dudosas entre sectores distintos; las conexiones de respaldo por sector se dibujan punteadas.
@@ -128,7 +129,48 @@ La persona escribe en una barra de búsqueda y ve coincidencias de empresas y de
 
 ---
 
+### User Story 7 - Filtrar el grafo por ubicación y tamaño (Priority: P2)
+
+La persona abre "Filtrar el grafo" en la barra izquierda y elige un departamento, una ciudad o un tamaño de empresa (por ejemplo, Bogotá, Cundinamarca, Chía o empresas medianas). El sistema arma un grafo nuevo solo con las empresas que cumplen lo elegido, para ver cómo se relacionan entre sí.
+
+**Why this priority**: Responde a "¿cómo se ve el ecosistema de este lugar o de este tamaño?", una pregunta natural del equipo que el grafo completo no permite.
+
+**Independent Test**: Elegir una ciudad y comprobar que el grafo muestra solo sus empresas, con la leyenda y la búsqueda limitadas a ellas; quitar el filtro y comprobar que vuelve el grafo completo.
+
+**Acceptance Scenarios**:
+
+1. **Given** el grafo completo, **When** la persona elige una ciudad (por ejemplo Chía), **Then** el grafo muestra solo las empresas de esa ciudad, centrado y encuadrado como un grafo nuevo, y se indica "Mostrando N de M empresas".
+2. **Given** un filtro de departamento, **When** se despliega la lista de ciudades, **Then** solo aparecen las de ese departamento, cada una con su número de empresas.
+3. **Given** filtros de ubicación y de tamaño, **When** se combinan, **Then** quedan las empresas que cumplen ambos.
+4. **Given** un filtro activo, **When** la persona busca una empresa que no está en el grupo, **Then** no aparece en los resultados, y la leyenda cuenta solo las empresas del grupo.
+5. **Given** un filtro activo y una empresa seleccionada que el filtro deja fuera, **When** cambia el filtro, **Then** la selección se cierra.
+6. **Given** un filtro activo, **When** la persona pulsa "Quitar filtros", **Then** vuelve el grafo completo.
+
+---
+
+### User Story 8 - Filtrar las conexiones de una empresa (Priority: P2)
+
+Al seleccionar una empresa, su tarjeta ofrece dos filtros sobre sus conexiones: la cercanía mínima (todas, media o alta) y "solo del mismo tamaño". Las conexiones que no cumplen pasan al fondo atenuado, para tener más certeza de cuáles son las más cercanas.
+
+**Why this priority**: La similitud ya decide si hay conexión, pero no distingue cuán fuerte es; este filtro deja ver solo las más cercanas o las de empresas comparables.
+
+**Independent Test**: Seleccionar una empresa con conexiones de distinta cercanía, elegir "Alta" y comprobar que solo las de similitud 0,50 o más siguen coloreadas; marcar "mismo tamaño" y comprobar que solo quedan las del mismo tamaño.
+
+**Acceptance Scenarios**:
+
+1. **Given** una empresa seleccionada, **When** se abre su tarjeta, **Then** muestra "Mostrando N de N conexiones" y los dos filtros sin aplicar.
+2. **Given** una empresa seleccionada, **When** la persona elige cercanía media (0,30 o más) o alta (0,50 o más), **Then** solo las conexiones con esa similitud o más quedan coloreadas y resaltadas; las demás pasan al fondo atenuado y el conteo se actualiza.
+3. **Given** una empresa con tamaño registrado, **When** marca "Solo del mismo tamaño", **Then** solo quedan las conexiones cuya empresa tiene ese mismo tamaño.
+4. **Given** una empresa sin tamaño registrado, **When** se abre su tarjeta, **Then** el filtro de tamaño aparece desactivado con la explicación.
+5. **Given** un filtro de conexiones aplicado, **When** la persona selecciona otra empresa, **Then** el filtro vuelve a "todas".
+
+---
+
 ### Edge Cases
+
+- Empresas sin ubicación o sin tamaño registrado no aparecen cuando el filtro correspondiente está activo.
+- Un grupo con pocas empresas parecidas entre sí (por ejemplo, una ciudad pequeña) tiene pocas conexiones por similitud; las empresas que quedan sueltas se unen con líneas punteadas de "mismo sector" y, si son únicas en su sector, quedan sin conexiones.
+- Un grupo de una sola empresa se muestra solo, sin error.
 
 - Búsqueda vacía o solo con espacios: no muestra resultados.
 - Una búsqueda con muchas coincidencias muestra solo las primeras y deja ver cuántas más hay.
@@ -166,7 +208,11 @@ La persona escribe en una barra de búsqueda y ve coincidencias de empresas y de
 - **FR-016**: El sistema MUST usar un color distinto y único para cada uno de los 16 sectores, y ese color MUST ser el mismo en el nodo, en las vecinas, en el borde de la tarjeta y en la leyenda.
 - **FR-017**: El sistema MUST funcionar sin inicio de sesión, sin servidor propio y sin permitir la edición de datos.
 - **FR-024**: Las conexiones por similitud MUST validarse por significado y el veredicto (ok, dudosa o mala) MUST poder corregirse a mano en un archivo; el sistema MUST NOT mostrar las conexiones malas ni las dudosas entre sectores distintos, ni volver a crearlas como respaldo. Las conexiones de respaldo por sector MUST distinguirse visualmente (punteadas) de las de similitud.
-- **FR-018**: El sistema MUST NOT incluir, en esta versión, filtros que oculten empresas, exportación ni vistas de lista.
+- **FR-018**: El sistema MUST NOT incluir, en esta versión, exportación ni vistas de lista.
+- **FR-029**: El sistema MUST ofrecer filtros de departamento, ciudad y tamaño de empresa que se pueden combinar. Con un filtro activo, el sistema MUST armar un grafo nuevo solo con las empresas que lo cumplen: se vuelve a calcular su disposición (las más completas del grupo al centro) y su encuadre, la leyenda cuenta solo esas empresas y la búsqueda solo las encuentra a ellas. Cada lista de opciones MUST mostrar cuántas empresas deja cada valor; las ciudades MUST ser las del departamento elegido; no se filtra por país.
+- **FR-030**: En el grafo filtrado el sistema MUST conservar las conexiones validadas que existen entre las empresas del grupo y MUST NOT crear conexiones por similitud nuevas (no tendrían validación). Las empresas que queden sin ninguna conexión MUST unirse, con línea punteada, a las más completas de su sector en el grupo, con un máximo de 10 conexiones por empresa.
+- **FR-031**: Con una empresa seleccionada, su tarjeta MUST ofrecer un filtro de cercanía (todas; media, con similitud 0,30 o más; alta, 0,50 o más) y un filtro "solo del mismo tamaño". Las conexiones que no cumplen MUST pasar al fondo atenuado y la tarjeta MUST indicar "Mostrando N de M conexiones". El filtro de tamaño MUST desactivarse, explicando por qué, si la empresa no tiene tamaño. El filtro MUST reiniciarse al cambiar la selección.
+- **FR-032**: Bogotá, D.C. MUST contar como departamento aparte, de modo que "Cundinamarca" no incluya a las empresas de Bogotá aunque lo hayan declarado así. El tamaño MUST tomarse solo del texto explícito (Pequeña 1-50, Mediana 50-500, Grande más de 500 empleados); los códigos sin significado documentado no se interpretan.
 - **FR-019**: Cada sector de la leyenda MUST poder seleccionarse con un click. Al seleccionarlo, el sistema MUST colorear con el color del sector todas las empresas de ese sector, resaltar las conexiones entre ellas y dejar el resto en gris, desenfocado y atenuado; un nuevo click en el mismo sector, o en el fondo, MUST devolver al estado inicial.
 - **FR-020**: El sistema MUST ofrecer una barra de búsqueda que, sin distinguir mayúsculas ni tildes, encuentre empresas por nombre, sectores por nombre y empresas por palabras de su descripción ("Descripción completa" y "Servicio que ofrece"). Una palabra buscada coincide con el comienzo de una palabra de la descripción ("confec" encuentra "confección"; "ropa" no encuentra "Europa"); con varias palabras, la empresa MUST contenerlas todas, en cualquier orden. Las palabras de una sola letra se ignoran en la descripción.
 - **FR-025**: Los resultados MUST ordenarse así: sectores, empresas cuyo nombre contiene el texto (las que empiezan por él primero) y empresas que coinciden por su descripción, estas últimas con las de información más completa primero. Cada coincidencia por descripción MUST mostrar el fragmento donde aparece, resaltado.
@@ -197,6 +243,8 @@ La persona escribe en una barra de búsqueda y ve coincidencias de empresas y de
 - **SC-008**: Al seleccionar un sector, el 100% de sus empresas (y ninguna de otro sector) aparece con el color del sector, y el cambio se ve en menos de 1 segundo.
 - **SC-009**: Al escribir en la búsqueda, los resultados aparecen en menos de 1 segundo, y una persona nueva encuentra una empresa conocida por su nombre en menos de 30 segundos.
 - **SC-011**: Ninguna empresa que tenga otras de su sector queda sin conexiones (hoy: 0 de 615; antes del respaldo, 22).
+- **SC-013**: Al elegir un filtro de ubicación o tamaño, el grafo nuevo se ve en menos de 1 segundo y muestra exactamente las empresas que lo cumplen (ni una más ni una menos).
+- **SC-014**: Con una empresa seleccionada, el 100 % de las conexiones resaltadas cumple el filtro de cercanía y de tamaño elegido, y el conteo "N de M" coincide con las que se ven.
 - **SC-012**: En una muestra revisada a mano de las conexiones por similitud que se muestran, ninguna es "mala" (hoy: 1.361 por similitud, de ellas 947 ok y 414 dudosas; 327 parejas rechazadas: las malas y las dudosas entre sectores distintos). Ninguna conexión por similitud queda sin veredicto.
 - **SC-010**: Dividido el grafo en 8 zonas iguales alrededor del centro, ninguna tiene más de un 15% de empresas por encima del promedio.
 

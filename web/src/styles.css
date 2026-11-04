@@ -311,6 +311,92 @@ body {
   color: var(--muted);
 }
 
+/* Filtros del grafo (ubicación y tamaño) y de las conexiones de una empresa */
+.filters,
+.connection-filters {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.filters {
+  padding: 8px 10px;
+  border: 1px solid var(--gray-edge);
+  border-radius: 8px;
+}
+
+.filters summary {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.filters label,
+.connection-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 8px;
+}
+
+.filters select,
+.connection-filters select {
+  padding: 6px 8px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--gray-edge);
+  border-radius: 6px;
+}
+
+.filters .shown,
+.connection-filters .shown {
+  margin: 10px 0 6px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.filters button {
+  padding: 6px 10px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--text);
+  background: #fff;
+  border: 1px solid var(--gray-edge);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.filters button:disabled {
+  color: var(--muted);
+  cursor: default;
+  opacity: 0.6;
+}
+
+.connection-filters {
+  margin: 0 16px 8px;
+  padding: 8px 10px 10px;
+  background: var(--bg);
+  border-radius: 8px;
+}
+
+.connection-filters .shown {
+  margin-top: 0;
+}
+
+.connection-filters label.check {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+}
+
+.connection-filters .hint {
+  margin: 4px 0 0;
+  font-size: 12px;
+}
+
 /* Leyenda de sectores (seleccionable) */
 .legend {
   margin: 0;
