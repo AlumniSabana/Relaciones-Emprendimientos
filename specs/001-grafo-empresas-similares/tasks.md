@@ -227,6 +227,11 @@ description: "Lista de tareas para el grafo de empresas similares"
 - [X] T070 Crear `web/src/components/Filters.tsx` (departamento, ciudad, tamaño, "Quitar filtros") y `ConnectionFilters.tsx` (cercanía y mismo tamaño, dentro de la tarjeta), y conectarlos en `web/src/App.tsx` (grafo, leyenda y búsqueda sobre el grupo; selección fuera del grupo se cierra; el filtro de conexiones se reinicia); pruebas en `Filters.test.tsx` y `filters.app.test.tsx`
 - [X] T071 Regenerar `web/src/data/graph.json`, comprobar en el navegador (Chía, Cajicá, Zipaquirá, Cundinamarca, Bogotá) y documentar en la spec (historias 7 y 8), `research.md` (D2e) y el contrato
 
+### Ciudades por departamento y datos aportados a mano (D2d, D2e)
+
+- [X] T072 En `tools/build_graph.py`, hacer que la ciudad mande sobre un departamento declarado que no le corresponde (`CITY_DEPARTMENT`: Medellín, Cartagena de Indias) e imprimir las ciudades declaradas en más de un departamento (`cities_in_several_departments`); pruebas en `tests/test_build_graph.py` y, para cada departamento, que su lista de ciudades sea exactamente la de sus empresas (`web/src/__tests__/Filters.test.tsx`)
+- [X] T073 Añadir `Datos_adicionales_nuevas.csv` (Postres Lirole: Cajicá, Cundinamarca, `col`) y que `tools/clean_new_companies.py` lo aplique por ID (`read_additional`, `additional` en `build_new_base`); pruebas en `tests/test_clean_new_companies.py` y `tests/test_build_graph.py`
+
 ### Verificación de la revisión
 
 - [X] T048 Ejecutar `npm test`, `npx tsc --noEmit` y `npm run build` en `web/` y comprobar en el navegador: grafo centrado, sector seleccionado desde la leyenda y desde la búsqueda, empresa buscada visible, y que el grafo vuelve a gris con el fondo

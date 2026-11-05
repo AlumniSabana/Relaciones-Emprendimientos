@@ -107,6 +107,30 @@ def test_build_new_base_uses_corrections_ids_sectors_and_base_schema():
     assert base.iloc[1]["Descripción"] == "Algo", "sin corrección se usa la descripción limpia"
 
 
+def test_additional_data_fills_only_given_columns_and_never_the_id_or_name():
+    participants = pd.DataFrame([{"No": 1, "Nombre de empresa": "Uno", "Cargo": None, "Descripción": "Algo"},
+                                 {"No": 2, "Nombre de empresa": "Dos", "Cargo": None, "Descripción": "Otro"}])
+    columns = COLUMNS + ["Ciudad", "Departamento"] if "Ciudad" not in COLUMNS else COLUMNS
+    additional = {"SIE-2026-2-01": {"Ciudad": " Cajicá ", "Departamento": "", "Nombre de empresa": "Otro nombre",
+                                    "Eloqua Unique Identifier": "X", "Columna inexistente": "x"}}
+    base = cn.build_new_base(participants, {}, {}, columns, additional).set_index(cn.ID_COL)
+    assert base.loc["SIE-2026-2-01", "Ciudad"] == "Cajicá"
+    assert pd.isna(base.loc["SIE-2026-2-01", "Departamento"]), "un valor vacío no pisa nada"
+    assert base.loc["SIE-2026-2-01", "Nombre de empresa"] == "Uno"
+    assert pd.isna(base.loc["SIE-2026-2-02", "Ciudad"]), "las demás no cambian"
+    assert "Columna inexistente" not in base.columns
+
+
+def test_additional_data_for_a_company_not_in_the_excel_is_an_error():
+    participants = pd.DataFrame([{"No": 1, "Nombre de empresa": "Uno", "Cargo": None, "Descripción": "Algo"}])
+    with pytest.raises(ValueError, match="SIE-2026-2-99"):
+        cn.build_new_base(participants, {}, {}, COLUMNS, {"SIE-2026-2-99": {"Ciudad": "X"}})
+
+
+def test_missing_additional_file_means_no_extra_data(tmp_path):
+    assert cn.read_additional(tmp_path / "no_existe.csv") == {}
+
+
 # Archivo real del proyecto
 REAL = cn.XLSX
 OUT = cn.OUT_CSV
@@ -132,7 +156,8 @@ def test_real_file_has_12_companies_each_reviewed_and_with_a_sector():
 def test_committed_csv_matches_what_the_script_produces():
     corr = pd.read_csv(cn.CORRECTIONS_CSV, dtype=str, keep_default_na=False, encoding="utf-8-sig").set_index(cn.ID_COL)
     sectors = pd.read_csv(cn.SECTOR_CSV, dtype=str, encoding="utf-8-sig").set_index(cn.ID_COL)["Sector relacionado"]
-    built = cn.build_new_base(cn.read_participants(REAL), corr.to_dict("index"), sectors.to_dict(), COLUMNS)
+    built = cn.build_new_base(cn.read_participants(REAL), corr.to_dict("index"), sectors.to_dict(), COLUMNS,
+                              cn.read_additional(cn.ADDITIONAL_CSV))
     saved = pd.read_csv(OUT, dtype=str, encoding="utf-8-sig")
     # Las celdas vacías son None al construir y NaN al leer el CSV: se comparan como texto vacío.
     pd.testing.assert_frame_equal(built.astype(object).fillna("").astype(str).reset_index(drop=True),

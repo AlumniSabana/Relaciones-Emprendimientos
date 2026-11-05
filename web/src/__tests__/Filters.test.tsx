@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import ConnectionFilters from "../components/ConnectionFilters";
+import data from "../data/graph.json";
 import Filters from "../components/Filters";
 import { ALL_NEIGHBORS } from "../lib/connections";
 import { NO_FILTER } from "../lib/filters";
@@ -54,6 +55,40 @@ describe("Filters (graph)", () => {
     expect(screen.getByText("Filtrar el grafo (activo)")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Quitar filtros" }));
     expect(onChange).toHaveBeenCalledWith(NO_FILTER);
+  });
+});
+
+describe("Filters with the real data", () => {
+  const real = data as Graph;
+  const departments = [...new Set(real.nodes.map((n) => n.department).filter((d): d is string => !!d))];
+
+  it("lists, for every department, exactly the cities of its companies and no others", () => {
+    expect(departments.length).toBeGreaterThan(10);
+    for (const department of departments) {
+      const { unmount } = render(<Filters graph={real} filter={{ ...NO_FILTER, department }} onChange={() => {}} shown={1} />);
+      const listed = within(screen.getByLabelText("Ciudad"))
+        .getAllByRole("option")
+        .map((o) => o.textContent!.replace(/ \(\d+\)$/, ""))
+        .filter((t) => t !== "Todos")
+        .sort();
+      const expected = [...new Set(real.nodes.filter((n) => n.department === department && n.city).map((n) => n.city!))].sort();
+      expect(listed, department).toEqual(expected);
+      unmount();
+    }
+  });
+
+  it("does not list cities of other departments under Cundinamarca (Medellín, Cartagena)", () => {
+    render(<Filters graph={real} filter={{ ...NO_FILTER, department: "Cundinamarca" }} onChange={() => {}} shown={1} />);
+    const cities = within(screen.getByLabelText("Ciudad"));
+    expect(cities.queryByRole("option", { name: /^Medellín/ })).toBeNull();
+    expect(cities.queryByRole("option", { name: /^Cartagena/ })).toBeNull();
+    expect(cities.getByRole("option", { name: /^Bogotá, D\.C\./ })).toBeInTheDocument();
+  });
+
+  it("lists all the cities only while no department is chosen", () => {
+    render(<Filters graph={real} filter={NO_FILTER} onChange={() => {}} shown={1} />);
+    const all = within(screen.getByLabelText("Ciudad")).getAllByRole("option").length - 1;
+    expect(all).toBe(new Set(real.nodes.map((n) => n.city).filter(Boolean)).size);
   });
 });
 

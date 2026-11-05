@@ -22,6 +22,8 @@ BASE_CSV = ROOT / "Base_emprendedores_2026_2_limpia.csv"
 CORRECTIONS_CSV = ROOT / "Descripciones_corregidas.csv"
 SECTOR_CSV = ROOT / "Sector_relacionado_ia.csv"
 OUT_CSV = ROOT / "Emprendedores_nuevos_2026_2_limpia.csv"
+# Datos que el Excel no trae y se aportan a mano por ID (ciudad, departamento, etc.), con columnas de la base.
+ADDITIONAL_CSV = ROOT / "Datos_adicionales_nuevas.csv"
 
 SHEET = "Lista graduados participantes"
 ID_PREFIX = "SIE-2026-2-"  # Semana de Innovación y Emprendimiento; el Excel no trae el ID de Eloqua
@@ -65,8 +67,16 @@ def full_description(description, service):
     return " ".join(p[:1].upper() + p[1:] for p in parts)
 
 
-def build_new_base(participants, corrections, sectors, columns):
-    """DataFrame con las columnas de la base; solo se llenan las que el Excel (o la revisión) aporta."""
+def build_new_base(participants, corrections, sectors, columns, additional=None):
+    """DataFrame con las columnas de la base; solo se llenan las que el Excel (o la revisión) aporta.
+
+    `additional` son datos aportados a mano por ID (por ejemplo la ciudad): {id: {columna: valor}}; solo se
+    usan las columnas que existen en la base y los valores con texto, y nunca cambian el ID ni el nombre.
+    """
+    additional = additional or {}
+    known = {f"{ID_PREFIX}{no:02d}" for no in participants["No"]}
+    if unknown := set(additional) - known:
+        raise ValueError(f"Datos adicionales de empresas que no están en el Excel: {sorted(unknown)}")
     rows = []
     for _, p in participants.iterrows():
         id_ = f"{ID_PREFIX}{p['No']:02d}"
@@ -82,7 +92,16 @@ def build_new_base(participants, corrections, sectors, columns):
             "Descripción completa": full_description(description, service),
             "Sector relacionado": sectors.get(id_),
         })
+        rows[-1].update({c: clean_text(v) for c, v in additional.get(id_, {}).items()
+                         if c in columns and c not in (ID_COL, "Nombre de empresa") and clean_text(v)})
     return pd.DataFrame(rows).reindex(columns=columns)
+
+
+def read_additional(path):
+    """Datos aportados a mano ({id: {columna: valor}}); sin archivo, ninguno."""
+    if not Path(path).exists():
+        return {}
+    return pd.read_csv(path, dtype=str, keep_default_na=False, encoding="utf-8-sig").set_index(ID_COL).to_dict("index")
 
 
 def main():
@@ -91,7 +110,8 @@ def main():
     corr = pd.read_csv(CORRECTIONS_CSV, dtype=str, keep_default_na=False, encoding="utf-8-sig").set_index(ID_COL)
     sectors = pd.read_csv(SECTOR_CSV, dtype=str, encoding="utf-8-sig").set_index(ID_COL)["Sector relacionado"]
     participants = read_participants(XLSX)
-    base = build_new_base(participants, corr.to_dict("index"), sectors.to_dict(), columns)
+    base = build_new_base(participants, corr.to_dict("index"), sectors.to_dict(), columns,
+                          read_additional(ADDITIONAL_CSV))
     base.to_csv(OUT_CSV, index=False, encoding="utf-8-sig", lineterminator="\r\n")
     print(f"Participantes en el Excel: {len(participants)} | empresas escritas: {len(base)}")
     print(f"Con descripción revisada: {base[ID_COL].isin(corr.index).sum()} | sin sector asignado: "

@@ -59,14 +59,24 @@ PLACEHOLDERS = {
 
 BOGOTA = "Bogotá, D.C."
 CUNDINAMARCA = "Cundinamarca"
-# Tamaños para filtrar: solo el texto explícito de "Tamaño". Los códigos ("1", "3", "T1" y los T1 a T4 de
-# "Tamaño Empresa") no tienen significado documentado, así que no se interpretan.
-# shortcut: cubre ~300 de 615 empresas; ampliar este mapa cuando se confirme qué significa cada código.
+# Ciudades cuyo departamento declarado en alguna empresa no les corresponde (error del formulario): para los
+# filtros la ciudad manda. Medellín es de Antioquia (5 empresas lo declaran así, 1 puso Cundinamarca) y
+# Cartagena de Indias de Bolívar (1 puso Cundinamarca).
+# shortcut: solo las ciudades inequívocas; "Armenia" (Antioquia y Quindío existen) y "Ciénaga" (declarada en
+# Atlántico, que no tiene una) se dejan como vienen. Al llegar datos nuevos, revisar las que imprime main().
+CITY_DEPARTMENT = {"Medellín": "Antioquia", "Cartagena de Indias": "Bolívar"}
+# Tamaños para filtrar, en tres niveles: el texto de "Tamaño" ("Mediana 50-500 empleados") no se puede partir
+# en los T2 y T3 de los códigos, así que se unen. Significado de los códigos (confirmado por la persona usuaria):
+# T1 de 1 a 50 trabajadores, T2 de 51 a 100, T3 de 101 a 500 y T4 más de 500.
+# Los códigos "1", "2" y "3" de "Tamaño" no tienen significado confirmado y no se interpretan.
+SMALL = "Pequeña (1-50 empleados)"
+MEDIUM = "Mediana (50-500 empleados)"
+LARGE = "Grande (más de 500 empleados)"
 SIZE_LABELS = {
-    "pequena 1-50 empleados": "Pequeña (1-50 empleados)",
-    "mediana 50-500 empleados": "Mediana (50-500 empleados)",
-    "grande mas de 500 empleados": "Grande (más de 500 empleados)",
+    "pequena 1-50 empleados": SMALL, "mediana 50-500 empleados": MEDIUM, "grande mas de 500 empleados": LARGE,
+    "t1": SMALL, "t2": MEDIUM, "t3": MEDIUM, "t4": LARGE,
 }
+SIZE_COLUMNS = ("Tamaño", "Tamaño Empresa")  # si se contradicen, gana la primera con un tamaño reconocido
 
 GRAYS = {"#c8ccd0", "#d0d4d8", "#9aa0a6", "#808080", "#a9a9a9", "#d3d3d3"}
 # shortcut: 16 colores elegidos a ojo, no optimizados perceptualmente; revisar si se añaden sectores.
@@ -199,8 +209,19 @@ def filter_attributes(row):
     department = clean_value(row.get("Departamento"), "Departamento")
     if BOGOTA in (city, department):
         department = CUNDINAMARCA
-    size = SIZE_LABELS.get(normalize(clean_value(row.get("Tamaño"), "Tamaño") or ""))
+    department = CITY_DEPARTMENT.get(city, department)
+    size = next((SIZE_LABELS[key] for key in (normalize(clean_value(row.get(c), c) or "") for c in SIZE_COLUMNS)
+                 if key in SIZE_LABELS), None)
     return {k: v for k, v in (("department", department), ("city", city), ("size", size)) if v}
+
+
+def cities_in_several_departments(nodes):
+    """Ciudades que las empresas declaran en más de un departamento: {ciudad: {departamento: empresas}}."""
+    seen = {}
+    for n in nodes:
+        if n.get("city") and n.get("department"):
+            seen.setdefault(n["city"], Counter())[n["department"]] += 1
+    return {city: dict(c) for city, c in seen.items() if len(c) > 1}
 
 
 def completeness_ranks(counts):
@@ -377,6 +398,9 @@ def main():
           f"{s['no_sector']} sin sector")
     print("Valores de relleno descartados por columna:", s["placeholders"])
     print(f"Parejas rechazadas por la validación: {s['rejected_pairs']}")
+    mixed = cities_in_several_departments(graph["nodes"])
+    if mixed:
+        print("Ciudades declaradas en más de un departamento (revisar a mano):", mixed)
     print(f"Nodos: {s['nodes']}  Aristas: {s['edges']} (de respaldo por sector: {s['fallback_edges']})  "
           f"Nodos sin conexiones: {s['isolated']}")
     print(f"Escrito: {OUT_JSON}")

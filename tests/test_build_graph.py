@@ -368,14 +368,36 @@ def test_no_company_is_left_without_connections():
     ({"Ciudad": "Bogotá, D.C.", "Departamento": "Bogotá, D.C.", "Tamaño": "Grande más de 500 empleados"},
      {"department": "Cundinamarca", "city": "Bogotá, D.C.", "size": "Grande (más de 500 empleados)"}),
     ({"Ciudad": "", "Departamento": "Bogotá, D.C."}, {"department": "Cundinamarca"}),
+    # La ciudad manda cuando el departamento declarado no le corresponde.
+    ({"Ciudad": "Medellín", "Departamento": "Cundinamarca"}, {"department": "Antioquia", "city": "Medellín"}),
+    ({"Ciudad": "Cartagena de Indias", "Departamento": "Cundinamarca"},
+     {"department": "Bolívar", "city": "Cartagena de Indias"}),
+    ({"Ciudad": "Medellín", "Departamento": "Antioquia"}, {"department": "Antioquia", "city": "Medellín"}),
+    ({"Ciudad": "Medellín", "Departamento": ""}, {"department": "Antioquia", "city": "Medellín"}),
     ({"Ciudad": "Chía", "Departamento": "Bogotá, D.C."}, {"department": "Cundinamarca", "city": "Chía"}),
-    # Relleno y códigos sin significado documentado no son ubicación ni tamaño.
-    ({"Ciudad": "NOINFORMA", "Departamento": "Meta", "Tamaño": "T1"}, {"department": "Meta"}),
+    # Códigos de tamaño: T1 de 1 a 50, T2 de 51 a 100, T3 de 101 a 500 y T4 más de 500 trabajadores.
+    ({"Tamaño": "T1"}, {"size": "Pequeña (1-50 empleados)"}),
+    ({"Tamaño Empresa": "T1"}, {"size": "Pequeña (1-50 empleados)"}),
+    ({"Tamaño Empresa": "T2"}, {"size": "Mediana (50-500 empleados)"}),
+    ({"Tamaño Empresa": "T3"}, {"size": "Mediana (50-500 empleados)"}),
+    ({"Tamaño Empresa": " t4 "}, {"size": "Grande (más de 500 empleados)"}),
+    ({"Tamaño": "T3", "Tamaño Empresa": ""}, {"size": "Mediana (50-500 empleados)"}),
+    # Si las dos columnas se contradicen, gana "Tamaño"; si esa no se reconoce, se usa la otra.
+    ({"Tamaño": "Pequeña 1-50 empleados", "Tamaño Empresa": "T3"}, {"size": "Pequeña (1-50 empleados)"}),
+    ({"Tamaño": "3", "Tamaño Empresa": "T4"}, {"size": "Grande (más de 500 empleados)"}),
+    # Relleno y códigos sin significado confirmado ("1", "2", "3") no son tamaño.
+    ({"Ciudad": "NOINFORMA", "Departamento": "Meta", "Tamaño": "1"}, {"department": "Meta"}),
     ({"Ciudad": "", "Departamento": "", "Tamaño": "3"}, {}),
-    ({"Tamaño": "No informa"}, {}),
+    ({"Tamaño": "No informa", "Tamaño Empresa": "T9"}, {}),
 ])
 def test_filter_attributes(row, expected):
     assert bg.filter_attributes(row) == expected
+
+
+def test_cities_in_several_departments_are_reported():
+    nodes = [{"city": "A", "department": "X"}, {"city": "A", "department": "X"}, {"city": "A", "department": "Y"},
+             {"city": "B", "department": "X"}, {"city": "C"}, {"department": "Z"}]
+    assert bg.cities_in_several_departments(nodes) == {"A": {"X": 2, "Y": 1}}
 
 
 def test_nodes_carry_location_and_size_only_when_they_have_them(tmp_path):
@@ -397,7 +419,13 @@ def test_real_graph_has_consistent_locations_and_sizes():
     assert len(in_bogota) > 300 and all(n["department"] == bg.CUNDINAMARCA for n in in_bogota)
     assert bg.BOGOTA not in {n.get("department") for n in nodes}, "Bogotá no es un departamento"
     assert {n["size"] for n in nodes if "size" in n} == set(bg.SIZE_LABELS.values())
+    # Con los códigos T1 a T4 la cobertura pasa de ~300 a más de 500 empresas.
+    assert sum("size" in n for n in nodes) > 500
     assert all("city" not in n or "department" in n for n in nodes), "toda ciudad tiene departamento"
+    # Ninguna ciudad aparece en dos departamentos, salvo las dos homónimas conocidas que no se pueden decidir.
+    assert set(bg.cities_in_several_departments(nodes)) <= {"Armenia"}
+    assert {n["department"] for n in nodes if n.get("city") == "Medellín"} == {"Antioquia"}
+    assert {n["department"] for n in nodes if n.get("city") == "Cartagena de Indias"} == {"Bolívar"}
 
 
 # Empresas nuevas (Graduados_participantes_Sem_Inn_2026_2.xlsx → Emprendedores_nuevos_2026_2_limpia.csv)
@@ -427,6 +455,16 @@ def test_new_companies_are_in_the_graph_connected_and_every_similarity_edge_is_r
     reviewed = bg.load_validation(VALIDATION_CSV)
     unreviewed = [(e["a"], e["b"]) for e in graph["edges"] if not e.get("fallback") and (e["a"], e["b"]) not in reviewed]
     assert unreviewed == []
+
+
+# Postres Lirole viene del Excel sin ubicación; la persona usuaria indicó que es de Cajicá (Datos_adicionales_nuevas.csv).
+@pytest.mark.skipif(not (BASE_CSV.exists() and SECTOR_CSV.exists() and NEW_CSV.exists()), reason="faltan los CSV")
+def test_postres_lirole_is_in_cajica_with_the_other_companies_of_that_city():
+    graph, _ = bg.build_graph(BASE_CSV, SECTOR_CSV, extra_csvs=[NEW_CSV])
+    lirole = next(n for n in graph["nodes"] if n["name"] == "Postres Lirole")
+    assert (lirole["city"], lirole["department"]) == ("Cajicá", "Cundinamarca")
+    assert sum(1 for n in graph["nodes"] if n.get("city") == "Cajicá") > 20, "la misma grafía que las demás de Cajicá"
+    assert not any(n.get("city", "").lower().startswith("cáj") for n in graph["nodes"])
 
 
 # Con la validación aplicada (revisión de las 1.640 conexiones por similitud)
