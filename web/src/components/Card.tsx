@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { webUrl } from "../lib/links";
 import type { Company } from "../types";
 
 interface Props {
@@ -25,12 +26,23 @@ export default function Card({ company, color, onClose, children }: Props) {
       </header>
       {children}
       <dl>
-        {company.fields.map(([label, value]) => (
-          <div key={label}>
-            <dt>{label}</dt>
-            <dd>{value}</dd>
-          </div>
-        ))}
+        {company.fields.map(([label, value]) => {
+          const link = label === "Página Web" ? webUrl(value) : null;
+          return (
+            <div key={label}>
+              <dt>{label}</dt>
+              <dd>
+                {link ? (
+                  <a href={link} target="_blank" rel="noopener noreferrer" title="Abrir en una pestaña nueva">
+                    {value}
+                  </a>
+                ) : (
+                  value
+                )}
+              </dd>
+            </div>
+          );
+        })}
       </dl>
     </aside>
   );

@@ -78,6 +78,7 @@ Abrir la dirección local que imprime Vite (normalmente `http://localhost:5173`)
 | 28 | Con un filtro activo, mirar las líneas | Las empresas sin conexiones en el grupo se unen con líneas punteadas | FR-030 |
 | 29 | Seleccionar una empresa y, en su tarjeta, elegir cercanía "Alta" | "Mostrando N de M conexiones"; solo las de similitud 0,50 o más quedan coloreadas | FR-031, SC-014 |
 | 30 | Marcar "Solo del mismo tamaño" | Solo quedan las conexiones de empresas con el mismo tamaño; está desactivado si la empresa no tiene tamaño | FR-031 |
+| 31 | Seleccionar una empresa con página web (por ejemplo FORTUNA RESTO DELI) y hacer clic en su "Página Web" | Se abre su sitio en una pestaña nueva; si el campo dice "No tienen" u otro texto, no es un enlace | FR-033 |
 | 18 | Pasar el cursor por varios nodos y revisar en `web/src/data/graph.json` que ningún nombre sea "No", "." ni "no tiene nombre" | No existen | FR-002, SC-007 |
 
 ## 5. Medición de fluidez (SC-002)

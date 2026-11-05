@@ -48,6 +48,38 @@ describe("Card", () => {
     expect(screen.getByText(long)).toBeInTheDocument();
   });
 
+  it("turns the web page into a link that opens in a new tab", () => {
+    render(<Card company={company([["Página Web", "www.rachidstyle.com"]])} color="#e6194b" onClose={() => {}} />);
+    const link = screen.getByRole("link", { name: "www.rachidstyle.com" });
+    expect(link).toHaveAttribute("href", "https://www.rachidstyle.com");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link.getAttribute("rel")).toContain("noopener");
+    expect(link.getAttribute("rel")).toContain("noreferrer");
+  });
+
+  it("keeps the text of a page that is not an address, without a link", () => {
+    render(<Card company={company([["Página Web", "En construcción"]])} color="#e6194b" onClose={() => {}} />);
+    expect(screen.getByText("En construcción")).toBeInTheDocument();
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+
+  it("never links a dangerous value written in the web page field", () => {
+    render(<Card company={company([["Página Web", "javascript:alert(1)"]])} color="#e6194b" onClose={() => {}} />);
+    expect(screen.getByText("javascript:alert(1)")).toBeInTheDocument();
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+
+  it("links only the Página Web field, not other fields that look like an address", () => {
+    render(
+      <Card
+        company={company([["Redes Sociales", "www.instagram.com/rachid"], ["Descripción completa", "Visítanos en www.rachid.com"]])}
+        color="#e6194b"
+        onClose={() => {}}
+      />,
+    );
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+
   it("calls onClose from the close button", () => {
     const onClose = vi.fn();
     render(<Card company={company([])} color="#e6194b" onClose={onClose} />);

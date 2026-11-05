@@ -232,6 +232,10 @@ description: "Lista de tareas para el grafo de empresas similares"
 - [X] T072 En `tools/build_graph.py`, hacer que la ciudad mande sobre un departamento declarado que no le corresponde (`CITY_DEPARTMENT`: Medellín, Cartagena de Indias) e imprimir las ciudades declaradas en más de un departamento (`cities_in_several_departments`); pruebas en `tests/test_build_graph.py` y, para cada departamento, que su lista de ciudades sea exactamente la de sus empresas (`web/src/__tests__/Filters.test.tsx`)
 - [X] T073 Añadir `Datos_adicionales_nuevas.csv` (Postres Lirole: Cajicá, Cundinamarca, `col`) y que `tools/clean_new_companies.py` lo aplique por ID (`read_additional`, `additional` en `build_new_base`); pruebas en `tests/test_clean_new_companies.py` y `tests/test_build_graph.py`
 
+### Enlace a la página web (FR-033)
+
+- [X] T074 Crear `web/src/lib/links.ts` (`webUrl`: solo direcciones http/https claras, agrega `https://` si falta, tolera `www:`) y usarlo en `web/src/components/Card.tsx` para enlazar "Página Web" en pestaña nueva con `rel="noopener noreferrer"`; pruebas en `web/src/__tests__/links.test.ts` (incluye valores peligrosos) y `Card.test.tsx`
+
 ### Verificación de la revisión
 
 - [X] T048 Ejecutar `npm test`, `npx tsc --noEmit` y `npm run build` en `web/` y comprobar en el navegador: grafo centrado, sector seleccionado desde la leyenda y desde la búsqueda, empresa buscada visible, y que el grafo vuelve a gris con el fondo

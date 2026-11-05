@@ -539,6 +539,16 @@ body {
   color: var(--muted);
 }
 
+.card dd a {
+  color: var(--brand);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.card dd a:hover {
+  text-decoration-thickness: 2px;
+}
+
 .card dd {
   margin: 2px 0 0;
   font-size: 14px;
