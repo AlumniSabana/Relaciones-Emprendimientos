@@ -13,6 +13,8 @@ export interface Company {
   department?: string;
   city?: string;
   size?: string;
+  /** La tarjeta muestra su página web como texto, sin enlace (Paginas_sin_enlace.csv). */
+  nolink?: boolean;
 }
 
 export interface Edge {

@@ -25,6 +25,7 @@ export interface Sector { name: string; color: string }
 export interface Company {
   id: string; name: string; sector: string; rank: number; fields: [string, string][];
   department?: string; city?: string; size?: string; // para los filtros; solo si hay dato
+  nolink?: boolean; // la tarjeta muestra su página web como texto, sin enlace (Paginas_sin_enlace.csv)
 }
 export interface Edge { a: string; b: string; w: number; fallback?: boolean }
 export interface Graph { generated: string; sectors: Sector[]; nodes: Company[]; edges: Edge[] }

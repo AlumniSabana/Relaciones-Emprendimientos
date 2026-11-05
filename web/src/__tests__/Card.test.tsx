@@ -63,6 +63,13 @@ describe("Card", () => {
     expect(screen.queryByRole("link")).toBeNull();
   });
 
+  it("shows the address of a company marked as no-link, but without a link to open it", () => {
+    const flagged = { ...company([["Página Web", "http://www.sitio.com/"]]), nolink: true };
+    render(<Card company={flagged} color="#e6194b" onClose={() => {}} />);
+    expect(screen.getByText("http://www.sitio.com/")).toBeInTheDocument();
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+
   it("never links a dangerous value written in the web page field", () => {
     render(<Card company={company([["Página Web", "javascript:alert(1)"]])} color="#e6194b" onClose={() => {}} />);
     expect(screen.getByText("javascript:alert(1)")).toBeInTheDocument();

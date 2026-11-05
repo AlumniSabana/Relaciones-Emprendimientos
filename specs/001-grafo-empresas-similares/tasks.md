@@ -236,6 +236,8 @@ description: "Lista de tareas para el grafo de empresas similares"
 
 - [X] T074 Crear `web/src/lib/links.ts` (`webUrl`: solo direcciones http/https claras, agrega `https://` si falta, tolera `www:`) y usarlo en `web/src/components/Card.tsx` para enlazar "Página Web" en pestaña nueva con `rel="noopener noreferrer"`; pruebas en `web/src/__tests__/links.test.ts` (incluye valores peligrosos) y `Card.test.tsx`
 
+- [X] T075 Sitios sin enlace: `Paginas_sin_enlace.csv` (dominio y motivo, editable; hoy fortunarestodeli.com) leído por `tools/build_graph.py` (`load_no_link_sites`, `has_no_link_site`), que marca a la empresa con `nolink: true` sin quitar su dirección; `web/src/components/Card.tsx` la muestra como texto sin enlace; pruebas en `tests/test_build_graph.py` y `Card.test.tsx`
+
 ### Verificación de la revisión
 
 - [X] T048 Ejecutar `npm test`, `npx tsc --noEmit` y `npm run build` en `web/` y comprobar en el navegador: grafo centrado, sector seleccionado desde la leyenda y desde la búsqueda, empresa buscada visible, y que el grafo vuelve a gris con el fondo

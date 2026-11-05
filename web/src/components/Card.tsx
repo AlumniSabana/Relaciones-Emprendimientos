@@ -27,7 +27,7 @@ export default function Card({ company, color, onClose, children }: Props) {
       {children}
       <dl>
         {company.fields.map(([label, value]) => {
-          const link = label === "Página Web" ? webUrl(value) : null;
+          const link = label === "Página Web" && !company.nolink ? webUrl(value) : null;
           return (
             <div key={label}>
               <dt>{label}</dt>

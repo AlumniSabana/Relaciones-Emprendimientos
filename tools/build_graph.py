@@ -21,6 +21,8 @@ SECTOR_CSV = ROOT / "Sector_relacionado_ia.csv"
 OUT_JSON = ROOT / "web" / "src" / "data" / "graph.json"
 CONNECTIONS_CSV = ROOT / "Conexiones_empresas.csv"
 VALIDATION_CSV = ROOT / "Conexiones_validadas.csv"  # veredicto por conexión (ok, dudosa, mala)
+# Sitios web cuya dirección se muestra en la tarjeta pero sin enlace para abrirla (Dominio, Motivo); se edita a mano.
+NO_LINK_SITES_CSV = ROOT / "Paginas_sin_enlace.csv"
 # Empresas nuevas (tools/clean_new_companies.py), con las mismas columnas que la base.
 EXTRA_CSVS = [ROOT / "Emprendedores_nuevos_2026_2_limpia.csv"]
 
@@ -161,6 +163,37 @@ def clean_value(value, column):
     if column == "Fecha de Fundación":
         text = re.sub(r"\s+0:00(:00)?$", "", text)
     return text
+
+
+def site_domain(value):
+    """Dominio de una dirección web escrita a mano, sin esquema, www, puerto ni ruta y en minúsculas."""
+    text = re.sub(r"^[a-z][a-z0-9+.-]*://", "", _text(value).lower().replace("www:", "www."))
+    host = re.split(r"[/?#\s]", text, maxsplit=1)[0].split(":")[0]
+    return re.sub(r"^www\.", "", host)
+
+
+def load_no_link_sites(path):
+    """Dominios cuya dirección se muestra pero no se puede abrir desde la tarjeta (Paginas_sin_enlace.csv:
+    Dominio, Motivo); {} sin archivo."""
+    if not Path(path).exists():
+        return {}
+    table = pd.read_csv(path, dtype=str, keep_default_na=False, encoding="utf-8-sig")
+    return {site_domain(d): m for d, m in zip(table["Dominio"], table["Motivo"]) if site_domain(d)}
+
+
+def is_no_link_site(value, no_link):
+    """Si la dirección es de un dominio sin enlace o de un subdominio suyo."""
+    domain = site_domain(value)
+    return bool(domain) and any(domain == x or domain.endswith("." + x) for x in no_link)
+
+
+NO_LINK_SITES = load_no_link_sites(NO_LINK_SITES_CSV)
+
+
+def has_no_link_site(row, no_link=None):
+    """Si la página web de la empresa es de un dominio al que la tarjeta no debe enlazar."""
+    no_link = NO_LINK_SITES if no_link is None else no_link
+    return is_no_link_site(clean_value(row.get("Página Web"), "Página Web") or "", no_link)
 
 
 def build_fields(row, discarded=None):
@@ -343,7 +376,8 @@ def build_graph(base_csv, sector_csv, validation_csv=None, extra_csvs=()):
     fields = {r[ID_COL]: build_fields(r, discarded) for r in rows}
     ranks = completeness_ranks({i: len(f) for i, f in fields.items()})
     nodes = [{"id": r[ID_COL], "name": r[NAME_COL], "sector": r["_sector"],
-              "rank": round(ranks[r[ID_COL]], 4), "fields": fields[r[ID_COL]], **filter_attributes(r)}
+              "rank": round(ranks[r[ID_COL]], 4), "fields": fields[r[ID_COL]], **filter_attributes(r),
+              **({"nolink": True} if has_no_link_site(r) else {})}
              for r in rows]
     texts = [" ".join(filter(None, (clean_value(r.get(c), c) for c in SIMILARITY_COLUMNS)))
              for r in rows]

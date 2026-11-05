@@ -358,6 +358,63 @@ def test_no_company_is_left_without_connections():
     assert linked_names(graph, "Hotel El Dorado Plaza")  # solo decía "Hoteleria"
 
 
+# Sitios web sin enlace (Paginas_sin_enlace.csv): la dirección se muestra pero la tarjeta no la abre
+NO_LINK_CSV = ROOT / "Paginas_sin_enlace.csv"
+
+
+@pytest.mark.parametrize("value,domain", [
+    ("http://www.fortunarestodeli.com/", "fortunarestodeli.com"),
+    ("https://WWW.Sitio.com.co:8080/ruta?x=1#a", "sitio.com.co"),
+    ("www:sitio.com", "sitio.com"),
+    ("sitio.com/inicio", "sitio.com"),
+    ("  tienda.sitio.com ", "tienda.sitio.com"),
+    ("No tienen", "no"),
+    ("", ""),
+])
+def test_site_domain(value, domain):
+    assert bg.site_domain(value) == domain
+
+
+@pytest.mark.parametrize("value,expected", [
+    ("www.malo.com", True), ("http://malo.com/x", True), ("https://tienda.malo.com", True),
+    ("malo.com.co", False), ("nomalo.com", False), ("www.bueno.com", False), ("No tienen", False), ("", False),
+])
+def test_is_no_link_site_matches_the_domain_and_its_subdomains_only(value, expected):
+    assert bg.is_no_link_site(value, {"malo.com": "motivo"}) is expected
+
+
+def test_a_no_link_site_keeps_its_address_in_the_card_and_flags_the_company(tmp_path):
+    no_link = {"malo.com": "x"}
+    row = {"Página Web": "http://www.malo.com/", "Ciudad": "Chía"}
+    # La dirección se sigue mostrando: lo único que cambia es que la tarjeta no la enlaza.
+    assert dict(bg.build_fields(row)) == {"Página Web": "http://www.malo.com/", "Ciudad": "Chía"}
+    assert bg.has_no_link_site(row, no_link) is True
+    assert bg.has_no_link_site({"Página Web": "www.bueno.com"}, no_link) is False
+    assert bg.has_no_link_site({"Ciudad": "Chía"}, no_link) is False
+    assert bg.has_no_link_site({"Página Web": "No tienen"}, no_link) is False
+
+
+def test_load_no_link_sites_reads_the_file_and_tolerates_its_absence(tmp_path):
+    path = tmp_path / "e.csv"
+    pd.DataFrame({"Dominio": ["https://www.Malo.com/", ""], "Motivo": ["porque sí", "vacío"]}).to_csv(path, index=False)
+    assert bg.load_no_link_sites(path) == {"malo.com": "porque sí"}
+    assert bg.load_no_link_sites(tmp_path / "no_existe.csv") == {}
+
+
+@pytest.mark.skipif(not (BASE_CSV.exists() and SECTOR_CSV.exists() and NO_LINK_CSV.exists()), reason="faltan los CSV")
+def test_no_link_sites_keep_their_address_but_are_flagged_in_the_real_graph():
+    no_link = bg.load_no_link_sites(NO_LINK_CSV)
+    assert "fortunarestodeli.com" in no_link
+    graph, _ = bg.build_graph(BASE_CSV, SECTOR_CSV, extra_csvs=[NEW_CSV])
+    fortuna = next(n for n in graph["nodes"] if n["name"] == "FORTUNA RESTO DELI")
+    assert dict(fortuna["fields"])["Página Web"] == "http://www.fortunarestodeli.com/"
+    assert fortuna.get("nolink") is True
+    # Solo quedan marcadas las empresas cuyo sitio está en la lista, y todas las que lo tienen.
+    for n in graph["nodes"]:
+        site = dict(n["fields"]).get("Página Web", "")
+        assert bool(n.get("nolink")) == bg.is_no_link_site(site, no_link)
+
+
 # Filtros por ubicación y tamaño
 @pytest.mark.parametrize("row,expected", [
     ({"Ciudad": "Chía", "Departamento": "Cundinamarca", "Tamaño": "Pequeña 1-50 empleados"},
