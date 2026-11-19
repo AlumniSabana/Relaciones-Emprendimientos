@@ -659,3 +659,20 @@ def test_a_sector_with_a_single_company_stays_alone():
     texts, ids, sectors = _sector_corpus()
     sectors[10] = "Solo"
     assert not any("L0" in (e["a"], e["b"]) for e in bg.build_edges(texts, ids, sectors))
+
+
+def test_excel_export_has_one_row_per_company_and_lists_its_connections(tmp_path):
+    import export_excel as ex
+    graph = {"nodes": [{"id": "A", "name": "Ana", "sector": "S1", "rank": 0.5, "fields": [["Ciudad", "Cali"]]},
+                       {"id": "B", "name": "Beto", "sector": "S1", "rank": 0.1, "fields": [], "nolink": True},
+                       {"id": "C", "name": "Cata", "sector": "S2", "rank": 0.2, "fields": []}],
+             "edges": [{"a": "A", "b": "B", "w": 0.5}, {"a": "A", "b": "C", "w": 0.4}]}
+    rows = [{bg.ID_COL: i, "Descripción": "d" + i} for i in "ABC"]
+    connections = bg.connections_table(graph)
+    companies = ex.companies_table(graph, rows, connections)
+    assert companies["Empresa"].tolist() == ["Ana", "Beto", "Cata"]
+    ana = companies.iloc[0]
+    assert (ana["Conexiones"], ana["Empresas conectadas"], ana["Ciudad"], ana["Descripción"]) == (2, "Beto; Cata", "Cali", "dA")
+    assert companies.iloc[1]["Enlace de la página web bloqueado"] == "sí"
+    ex.write_excel(companies, connections, tmp_path / "x.xlsx")
+    assert set(pd.read_excel(tmp_path / "x.xlsx", sheet_name=None)) == {"Empresas", "Conexiones"}

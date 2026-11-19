@@ -28,6 +28,7 @@ const CARD_SPACE = 412;
 const FOCUS_SCALE = 1.6;
 const MAX_LABEL = 28; // las etiquetas largas se pisan; el nombre completo queda en la ayuda emergente
 const TOP_LABELS = 10; // con un sector elegido se rotulan las 10 empresas con más información
+const GROUP_COLOR = "#475569"; // las conexiones entre empresas de un grupo no tienen un sector único
 const DEFAULT_HEADER = 96; // alto del encabezado si no se puede leer --header-h (styles.css)
 
 interface NodeProps {
@@ -168,22 +169,27 @@ export default function Graph({ graph, selection, onSelect, focus, onZoom, neigh
 
   const selectedCompany = selection?.type === "company" ? byId.get(selection.id) : undefined;
   const sectorName = selection?.type === "sector" ? selection.name : undefined;
+  const groupIds = useMemo(() => (selection?.type === "group" ? new Set(selection.ids) : undefined), [selection]);
   // Vecinas que se resaltan: las conexiones de la empresa que cumplen el filtro (por defecto, todas).
   const neighborIds = new Set(
     selectedCompany ? visibleConnections(selectedCompany, graph.edges, byId, neighborFilter).map((c) => c.other) : [],
   );
-  const active = selectedCompany !== undefined || sectorName !== undefined;
-  const focusColor = colors.get(selectedCompany?.sector ?? sectorName ?? "");
+  const active = selectedCompany !== undefined || sectorName !== undefined || groupIds !== undefined;
+  const focusColor = groupIds ? GROUP_COLOR : colors.get(selectedCompany?.sector ?? sectorName ?? "");
 
-  // Empresas que quedan en primer plano: la elegida y sus vecinas, o todas las de un sector.
+  // Empresas que quedan en primer plano: la elegida y sus vecinas, todas las de un sector o las de un grupo.
   const inFocus = (n: Company) =>
     selectedCompany
       ? n.id === selectedCompany.id || neighborIds.has(n.id)
-      : sectorName !== undefined && n.sector === sectorName;
+      : groupIds
+        ? groupIds.has(n.id)
+        : sectorName !== undefined && n.sector === sectorName;
   const edgeInFocus = (a: string, b: string) =>
     selectedCompany
       ? (a === selectedCompany.id && neighborIds.has(b)) || (b === selectedCompany.id && neighborIds.has(a))
-      : sectorName !== undefined && byId.get(a)?.sector === sectorName && byId.get(b)?.sector === sectorName;
+      : groupIds
+        ? groupIds.has(a) && groupIds.has(b)
+        : sectorName !== undefined && byId.get(a)?.sector === sectorName && byId.get(b)?.sector === sectorName;
 
   const pos = (id: string): Point => layout.get(id)!;
   const renderNode = (n: Company) => {
@@ -208,7 +214,8 @@ export default function Graph({ graph, selection, onSelect, focus, onZoom, neigh
   const baseNodes = graph.nodes.filter((n) => !inFocus(n));
   // Con una empresa elegida se rotulan ella y sus vecinas; con un sector, las 10 con más información
   // (rank más bajo), con el nombre como si estuvieran seleccionadas pero sin abrir su tarjeta.
-  const labelNodes = selectedCompany
+  // Un grupo (respuesta del chat) es corto y es justo lo que se busca: se rotula completo.
+  const labelNodes = selectedCompany || groupIds
     ? focusNodes
     : [...focusNodes].sort((a, b) => a.rank - b.rank).slice(0, TOP_LABELS);
 

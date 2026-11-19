@@ -400,7 +400,7 @@ def write_graph(graph, path):
     path.write_text(json.dumps(graph, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
 
-def write_connections_csv(graph, path, validation=None):
+def connections_table(graph, validation=None):
     """Una fila por empresa y vecina (cada conexión aparece dos veces) para filtrar por empresa.
 
     La columna Validación muestra el veredicto de Conexiones_validadas.csv (ok o dudosa).
@@ -418,8 +418,11 @@ def write_connections_csv(graph, path, validation=None):
                          "Tipo": "Mismo sector (respaldo)" if e.get("fallback") else "Similitud",
                          "Validación": "no aplica (respaldo)" if e.get("fallback") else verdict,
                          "Id empresa": src, "Id conectada": dst})
-    table = pd.DataFrame(rows).sort_values(["Empresa", "Similitud"], ascending=[True, False])
-    table.to_csv(path, index=False, encoding="utf-8-sig")  # con BOM para que Excel lea las tildes
+    return pd.DataFrame(rows).sort_values(["Empresa", "Similitud"], ascending=[True, False])
+
+
+def write_connections_csv(graph, path, validation=None):
+    connections_table(graph, validation).to_csv(path, index=False, encoding="utf-8-sig")  # BOM: Excel lee las tildes
 
 
 def main():

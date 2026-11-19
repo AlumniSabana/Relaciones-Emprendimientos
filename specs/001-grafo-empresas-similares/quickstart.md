@@ -84,3 +84,19 @@ Abrir la dirección local que imprime Vite (normalmente `http://localhost:5173`)
 ## 5. Medición de fluidez (SC-002)
 
 En el navegador, abrir las herramientas de rendimiento, mover y acercar el grafo con una empresa seleccionada y confirmar que se mantiene fluido. Si el desenfoque del fondo entrecorta, aplicar la alternativa indicada en [research.md](research.md) (D7).
+
+## Asistente de IA y matches
+
+1. Después de `build_graph.py`, generar los matches y el catálogo del chat (lee `Empresas clasificadas y matches.xlsx`):
+
+   ```bash
+   uv run --with pandas --with openpyxl python tools/build_matches.py
+   ```
+
+   Escribe `web/src/data/matches.json` y `web/api/_catalog.ts`; no se editan a mano.
+
+2. La llave de Gemini va en `web/.env.local` (ignorado por git): `GEMINI_API_KEY=...`. Con `npm run dev` el chat funciona en local. En Vercel: Settings → Environment Variables → `GEMINI_API_KEY` (y volver a desplegar). Opcional: `GEMINI_MODEL` para probar primero otro modelo.
+
+3. Probar: abrir "Preguntar al asistente" y escribir "Dime los emprendimientos de Cajicá que ofrezcan pastelería": responde con las empresas (LILILU, Basy pastelería, Postres Lirole…) y las resalta en el grafo. Abrir "Buscar matches", elegir "Postres Lirole" y ver las sugerencias (por ejemplo Cremas Vegetales como proveedor, afinidad alta).
+
+Si Google satura los modelos (503) el servidor reintenta hasta 52 s; si aun así falla, la app lo dice y se puede volver a preguntar.

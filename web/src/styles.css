@@ -90,8 +90,10 @@ body {
   justify-self: start;
 }
 
-.logo-alumni {
-  width: clamp(60px, 7vw, 100px);
+/* La imagen ya viene recortada al logo: se ve completo, sin "cover" */
+.logo-talenthub {
+  width: clamp(90px, 11vw, 150px);
+  object-fit: contain;
   justify-self: end;
 }
 
@@ -113,8 +115,8 @@ body {
     width: 128px;
   }
 
-  .logo-alumni {
-    width: 64px;
+  .logo-talenthub {
+    width: 84px;
   }
 
   .app {

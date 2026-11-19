@@ -238,6 +238,13 @@ description: "Lista de tareas para el grafo de empresas similares"
 
 - [X] T075 Sitios sin enlace: `Paginas_sin_enlace.csv` (dominio y motivo, editable; hoy fortunarestodeli.com) leído por `tools/build_graph.py` (`load_no_link_sites`, `has_no_link_site`), que marca a la empresa con `nolink: true` sin quitar su dirección; `web/src/components/Card.tsx` la muestra como texto sin enlace; pruebas en `tests/test_build_graph.py` y `Card.test.tsx`
 
+### Logo, asistente de IA y matches (FR-034 a FR-036)
+
+- [X] T076 Cambiar el logo de la derecha por TalentHub (`web/src/assets/talenthub.jpeg`, recortado del `talenthub.jpeg` de la raíz) en `web/src/components/Header.tsx` y `web/src/styles.css`; prueba en `header.test.tsx`
+- [X] T077 `tools/build_matches.py`: leer `Empresas clasificadas y matches.xlsx` y escribir `web/src/data/matches.json` (matches válidos, sin repetidos, y oferta/categoría por empresa) y `web/api/_catalog.ts` (una línea por empresa para el chat); pruebas en `tests/test_build_matches.py`
+- [X] T078 Chat: `web/api/_chat.ts` (limpieza de mensajes, prompt, validación de ids) y `web/api/chat.ts` (función de servidor que llama a Gemini con la llave de `GEMINI_API_KEY`, varios modelos de respaldo y plazo total); plugin de `web/vite.config.ts` que la sirve en local; `web/src/components/Chat.tsx`; selección por grupo (`Selection` `group`) en `Graph.tsx`/`App.tsx`; pruebas `chat.api.test.ts`, `Chat.test.tsx`, `Graph.group.test.tsx`
+- [X] T079 Matches: `web/src/lib/matches.ts` (`candidatesFor`, relación invertida) y `web/src/components/Matches.tsx` (carga diferida; Pasar, Me interesa, Ver en el grafo, decisiones en `localStorage`), botón en la barra y en la tarjeta; pruebas `matches.test.ts` y `Matches.test.tsx`
+
 ### Verificación de la revisión
 
 - [X] T048 Ejecutar `npm test`, `npx tsc --noEmit` y `npm run build` en `web/` y comprobar en el navegador: grafo centrado, sector seleccionado desde la leyenda y desde la búsqueda, empresa buscada visible, y que el grafo vuelve a gris con el fondo

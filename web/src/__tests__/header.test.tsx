@@ -26,7 +26,7 @@ describe("Header", () => {
     render(<Header />);
     expect(screen.getByRole("heading", { level: 1, name: "Emprendedores Alumni" })).toBeInTheDocument();
     expect(screen.getByRole("img", { name: "Universidad de La Sabana" })).toHaveAttribute("src");
-    expect(screen.getByRole("img", { name: "Alumni Sabana" })).toHaveAttribute("src");
+    expect(screen.getByRole("img", { name: "TalentHub UniSabana" })).toHaveAttribute("src");
   });
 });
 

@@ -25,8 +25,12 @@ export interface Edge {
   fallback?: boolean;
 }
 
-/** Lo que está seleccionado en la app: una empresa, un sector o nada. */
-export type Selection = { type: "company"; id: string } | { type: "sector"; name: string } | null;
+/** Lo que está seleccionado en la app: una empresa, un sector, un grupo de empresas (respuesta del chat) o nada. */
+export type Selection =
+  | { type: "company"; id: string }
+  | { type: "sector"; name: string }
+  | { type: "group"; ids: string[] }
+  | null;
 
 export interface Graph {
   generated: string;

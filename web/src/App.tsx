@@ -1,5 +1,6 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useMemo, useRef, useState } from "react";
 import Card from "./components/Card";
+import Chat from "./components/Chat";
 import ConnectionFilters from "./components/ConnectionFilters";
 import Filters from "./components/Filters";
 import Graph, { type FocusRequest } from "./components/Graph";
@@ -14,13 +15,20 @@ import { countBySector, sectorColors } from "./lib/graph";
 import { headerOpacity } from "./lib/header";
 import type { Graph as GraphData, Selection } from "./types";
 
+// Los matches pesan bastante y solo se usan al abrir su panel: se descargan entonces.
+const Matches = lazy(() => import("./components/Matches"));
+
 const graph = data as GraphData;
+
+/** Panel abierto sobre el grafo: el asistente, o los matches (con la empresa con la que se abrió, si hay). */
+type Panel = { type: "chat" } | { type: "matches"; id?: string } | null;
 
 export default function App() {
   const [chosen, setChosen] = useState<Selection>(null);
   const [focus, setFocus] = useState<FocusRequest | null>(null);
   const [filter, setFilter] = useState<GraphFilter>(NO_FILTER);
   const [neighborFilter, setNeighborFilter] = useState<NeighborFilter>(ALL_NEIGHBORS);
+  const [panel, setPanel] = useState<Panel>(null);
   const headerRef = useRef<HTMLElement>(null);
 
   // Con un filtro de ubicación o tamaño, todo (grafo, búsqueda, leyenda) trabaja solo con esas empresas.
@@ -52,10 +60,21 @@ export default function App() {
     if (next?.type === "company") setFocus((f) => ({ id: next.id, key: (f?.key ?? 0) + 1 }));
   };
 
+  const openCompany = (id: string) => selectFromSearch({ type: "company", id });
+  const toggle = (next: NonNullable<Panel>) => setPanel((current) => (current?.type === next.type ? null : next));
+
   return (
     <main className="app">
       <section className="sidebar" aria-label="Búsqueda y sectores">
         <Search graph={shown} onSelect={selectFromSearch} />
+        <div className="tools">
+          <button type="button" aria-pressed={panel?.type === "chat"} onClick={() => toggle({ type: "chat" })}>
+            Preguntar al asistente
+          </button>
+          <button type="button" aria-pressed={panel?.type === "matches"} onClick={() => toggle({ type: "matches" })}>
+            Buscar matches
+          </button>
+        </div>
         <Filters graph={graph} filter={filter} onChange={setFilter} shown={shown.nodes.length} />
         <Legend
           sectors={graph.sectors}
@@ -75,6 +94,26 @@ export default function App() {
           neighborFilter={neighborFilter}
         />
         <Header ref={headerRef} />
+        {panel?.type === "chat" && (
+          <Chat
+            graph={shown}
+            onShow={(ids) => select({ type: "group", ids })}
+            onPick={openCompany}
+            onClose={() => setPanel(null)}
+          />
+        )}
+        {panel?.type === "matches" && (
+          <Suspense fallback={<p className="panel loading">Cargando matches…</p>}>
+            <Matches
+              key={panel.id ?? "none"}
+              graph={shown}
+              colors={colors}
+              initialId={panel.id}
+              onShow={openCompany}
+              onClose={() => setPanel(null)}
+            />
+          </Suspense>
+        )}
         {selected && (
           <Card company={selected} color={colors.get(selected.sector)!} onClose={() => select(null)}>
             <ConnectionFilters
@@ -84,6 +123,9 @@ export default function App() {
               shown={visible}
               size={selected.size}
             />
+            <button type="button" className="find-matches" onClick={() => setPanel({ type: "matches", id: selected.id })}>
+              Buscar matches para esta empresa
+            </button>
           </Card>
         )}
       </div>
