@@ -8,6 +8,7 @@ import Header from "./components/Header";
 import Legend from "./components/Legend";
 import LineKey from "./components/LineKey";
 import Search from "./components/Search";
+import Welcome, { welcomeSeen } from "./components/Welcome";
 import data from "./data/graph.json";
 import { ALL_NEIGHBORS, connectionsOf, visibleConnections, type NeighborFilter } from "./lib/connections";
 import { applyFilter, NO_FILTER, type GraphFilter } from "./lib/filters";
@@ -29,6 +30,7 @@ export default function App() {
   const [filter, setFilter] = useState<GraphFilter>(NO_FILTER);
   const [neighborFilter, setNeighborFilter] = useState<NeighborFilter>(ALL_NEIGHBORS);
   const [panel, setPanel] = useState<Panel>(null);
+  const [welcome, setWelcome] = useState(() => !welcomeSeen());
   const headerRef = useRef<HTMLElement>(null);
 
   // Con un filtro de ubicación o tamaño, todo (grafo, búsqueda, leyenda) trabaja solo con esas empresas.
@@ -83,7 +85,11 @@ export default function App() {
           onSelect={(name) => select(name ? { type: "sector", name } : null)}
         />
         <LineKey />
+        <button type="button" className="help-button" onClick={() => setWelcome(true)}>
+          ¿Cómo usar la herramienta?
+        </button>
       </section>
+      {welcome && <Welcome onClose={() => setWelcome(false)} />}
       <div className="canvas">
         <Graph
           graph={shown}

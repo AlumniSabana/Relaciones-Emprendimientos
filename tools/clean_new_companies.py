@@ -67,19 +67,20 @@ def full_description(description, service):
     return " ".join(p[:1].upper() + p[1:] for p in parts)
 
 
-def build_new_base(participants, corrections, sectors, columns, additional=None):
+def build_new_base(participants, corrections, sectors, columns, additional=None, prefix=ID_PREFIX):
     """DataFrame con las columnas de la base; solo se llenan las que el Excel (o la revisión) aporta.
 
+    `prefix` es el de los IDs de esta tanda (ID_PREFIX en la de 2026-2).
     `additional` son datos aportados a mano por ID (por ejemplo la ciudad): {id: {columna: valor}}; solo se
     usan las columnas que existen en la base y los valores con texto, y nunca cambian el ID ni el nombre.
     """
     additional = additional or {}
-    known = {f"{ID_PREFIX}{no:02d}" for no in participants["No"]}
+    known = {f"{prefix}{no:02d}" for no in participants["No"]}
     if unknown := set(additional) - known:
         raise ValueError(f"Datos adicionales de empresas que no están en el Excel: {sorted(unknown)}")
     rows = []
     for _, p in participants.iterrows():
-        id_ = f"{ID_PREFIX}{p['No']:02d}"
+        id_ = f"{prefix}{p['No']:02d}"
         fix = corrections.get(id_, {})
         # pandas guarda las celdas vacías como NaN (que cuenta como verdadero): clean_text las vuelve None.
         description = clean_text(fix.get("Descripción")) or clean_text(p["Descripción"])

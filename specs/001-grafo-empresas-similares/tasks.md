@@ -245,6 +245,13 @@ description: "Lista de tareas para el grafo de empresas similares"
 - [X] T078 Chat: `web/api/_chat.ts` (limpieza de mensajes, prompt, validación de ids) y `web/api/chat.ts` (función de servidor que llama a Gemini con la llave de `GEMINI_API_KEY`, varios modelos de respaldo y plazo total); plugin de `web/vite.config.ts` que la sirve en local; `web/src/components/Chat.tsx`; selección por grupo (`Selection` `group`) en `Graph.tsx`/`App.tsx`; pruebas `chat.api.test.ts`, `Chat.test.tsx`, `Graph.group.test.tsx`
 - [X] T079 Matches: `web/src/lib/matches.ts` (`candidatesFor`, relación invertida) y `web/src/components/Matches.tsx` (carga diferida; Pasar, Me interesa, Ver en el grafo, decisiones en `localStorage`), botón en la barra y en la tarjeta; pruebas `matches.test.ts` y `Matches.test.tsx`
 
+### Guía de uso, pipeline automático y certificación (FR-037 a FR-039)
+
+- [X] T080 `web/src/components/Welcome.tsx`: ventana de instrucciones al iniciar y botón "¿Cómo usar la herramienta?" al final de la barra lateral en `App.tsx`; estilos en `panels.css`; `setupTests.ts` parte de "guía ya vista"; pruebas en `Welcome.test.tsx`
+- [X] T081 `tools/update_data.py`: pipeline de un Excel nuevo (limpieza, dedupe por ID y nombre, sector por votación, filas nuevas al final de la base y del sector, regeneración y certificación; `--dry-run`, `--prefix`); `prefix` en `build_new_base` y `similarity_text` en `build_graph.py`; pruebas en `tests/test_update_data.py`
+- [X] T082 `tools/certify.py` (pruebas de relaciones y matches, cola `Conexiones_por_revisar.csv`, `--registrar`), pruebas en `tests/test_certify.py` (casos que deben fallar y datos reales) y `.github/workflows/ci.yml`
+- [X] T083 Reescribir `README.md` como manual de usuario y de desarrollador
+
 ### Verificación de la revisión
 
 - [X] T048 Ejecutar `npm test`, `npx tsc --noEmit` y `npm run build` en `web/` y comprobar en el navegador: grafo centrado, sector seleccionado desde la leyenda y desde la búsqueda, empresa buscada visible, y que el grafo vuelve a gris con el fondo

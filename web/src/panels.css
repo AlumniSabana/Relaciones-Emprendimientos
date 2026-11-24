@@ -339,6 +339,91 @@
   color: #fff;
 }
 
+/* Instrucciones: ventana emergente al iniciar y botón al final de la barra lateral */
+.help-button {
+  padding: 8px 10px;
+  border: 1px solid var(--gray);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--brand);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.help-button:hover {
+  background: var(--bg);
+}
+
+.welcome-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgb(15 23 42 / 0.55);
+}
+
+.welcome {
+  width: min(620px, 100%);
+  max-height: 100%;
+  overflow-y: auto;
+  padding: 20px 24px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 16px 48px rgb(0 0 0 / 0.3);
+}
+
+.welcome h2 {
+  margin: 0 0 12px;
+  font-size: 20px;
+  color: var(--brand);
+}
+
+.welcome ol {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.welcome li {
+  margin-bottom: 8px;
+}
+
+.welcome footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+
+.welcome footer label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.welcome footer button {
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.welcome .reopen {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
 .matches .liked h3 {
   margin: 12px 0 6px;
   font-size: 14px;

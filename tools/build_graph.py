@@ -369,6 +369,11 @@ def assign_colors(sector_names):
     return [{"name": n, "color": PALETTE[i]} for i, n in enumerate(names)]
 
 
+def similarity_text(row):
+    """Lo que la empresa escribió sobre su oferta: con esto se compara con las demás."""
+    return " ".join(filter(None, (clean_value(row.get(c), c) for c in SIMILARITY_COLUMNS)))
+
+
 def build_graph(base_csv, sector_csv, validation_csv=None, extra_csvs=()):
     rows, stats = load_companies(base_csv, sector_csv, extra_csvs)
     rejected = rejected_pairs(load_validation(validation_csv)) if validation_csv else set()
@@ -379,8 +384,7 @@ def build_graph(base_csv, sector_csv, validation_csv=None, extra_csvs=()):
               "rank": round(ranks[r[ID_COL]], 4), "fields": fields[r[ID_COL]], **filter_attributes(r),
               **({"nolink": True} if has_no_link_site(r) else {})}
              for r in rows]
-    texts = [" ".join(filter(None, (clean_value(r.get(c), c) for c in SIMILARITY_COLUMNS)))
-             for r in rows]
+    texts = [similarity_text(r) for r in rows]
     edges = build_edges(texts, [n["id"] for n in nodes], [n["sector"] for n in nodes],
                         [n["rank"] for n in nodes], rejected)
     connected = {e["a"] for e in edges} | {e["b"] for e in edges}

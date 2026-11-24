@@ -100,3 +100,13 @@ En el navegador, abrir las herramientas de rendimiento, mover y acercar el grafo
 3. Probar: abrir "Preguntar al asistente" y escribir "Dime los emprendimientos de Cajicá que ofrezcan pastelería": responde con las empresas (LILILU, Basy pastelería, Postres Lirole…) y las resalta en el grafo. Abrir "Buscar matches", elegir "Postres Lirole" y ver las sugerencias (por ejemplo Cremas Vegetales como proveedor, afinidad alta).
 
 Si Google satura los modelos (503) el servidor reintenta hasta 52 s; si aun así falla, la app lo dice y se puede volver a preguntar.
+
+## Actualizar con un Excel nuevo y certificar
+
+```bash
+uv run --with pandas --with scikit-learn --with openpyxl python tools/update_data.py NUEVO_2027_1.xlsx --dry-run
+uv run --with pandas --with scikit-learn --with openpyxl python tools/update_data.py NUEVO_2027_1.xlsx
+uv run --with pandas --with scikit-learn python tools/certify.py
+```
+
+Esperado: lista de empresas nuevas y de las que se dejan fuera (con motivo), el sector asignado (con `?` en las de poca seguridad), el grafo regenerado y "Pruebas: 15 de 15 pasan". Con el mismo archivo otra vez no se agrega nada. Detalle en el README.
