@@ -1,16 +1,14 @@
-import { forwardRef } from "react";
-import talenthub from "../assets/talenthub.jpeg";
-import sabana from "../assets/sabana.jpeg";
+import sabana from "../assets/sabana-blanco.png";
+import talenthub from "../assets/talenthub-blanco.png";
 
-/** Título y logos sobre el grafo; App le cambia la opacidad al acercar (ver lib/header.ts). */
-const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
+/** Barra superior como la de la página de TalentHub (herramientas-cdp): fondo azul, logo blanco, divisor y título en cursiva. */
+export default function Header() {
   return (
-    <header className="page-header" ref={ref}>
-      <img className="logo logo-sabana" src={sabana} alt="Universidad de La Sabana" />
+    <header className="topbar">
+      <img className="topbar-logo" src={talenthub} alt="TalentHub UniSabana" />
+      <span className="topbar-divider" aria-hidden="true" />
       <h1>Emprendedores Alumni</h1>
-      <img className="logo logo-talenthub" src={talenthub} alt="TalentHub UniSabana" />
+      <img className="topbar-sabana" src={sabana} alt="Universidad de La Sabana" />
     </header>
   );
-});
-
-export default Header;
+}

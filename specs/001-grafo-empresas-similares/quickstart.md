@@ -70,7 +70,7 @@ Abrir la dirección local que imprime Vite (normalmente `http://localhost:5173`)
 | 20 | Escribir "ropa" y "ropa deportiva" | "ropa" no trae empresas por "Europa"; con dos palabras salen solo las que tienen ambas | FR-020 |
 | 21 | Mirar la parte baja de la barra izquierda | Explica la línea continua (se parecen) y la punteada (solo comparten sector) | FR-026 |
 | 22 | Abrir la página | Arriba, el título "Emprendedores Alumni" centrado, con el logo de La Sabana a la izquierda y el de Alumni a la derecha; el grafo queda debajo, sin tapar el encabezado | FR-028 |
-| 23 | Acercar con la rueda | El encabezado se desvanece gradualmente y desaparece; al alejar, reaparece | FR-028 |
+| 23 | Acercar con la rueda | La barra superior no cambia: ya no cubre el grafo, que se encuadra debajo de ella | FR-040 |
 | 24 | Elegir un sector (por ejemplo "Moda y textiles") | Aparecen los nombres de las 10 empresas del sector con más información, sin tarjeta; con un sector de menos de 10, aparecen todas | FR-027 |
 | 25 | Abrir "Filtrar el grafo" y elegir la ciudad "Chía" | El grafo pasa a tener solo las 55 empresas de Chía, reencuadrado; la leyenda suma 55; "Mostrando 55 de 615 empresas" | FR-029, SC-013 |
 | 26 | Elegir el departamento "Cundinamarca" y mirar la lista de ciudades; luego elegir la ciudad "Bogotá, D.C." | Cundinamarca (543) incluye a Bogotá (422), que aparece como ciudad y no como departamento; la lista de ciudades cambia con el departamento | FR-029, FR-032 |

@@ -63,7 +63,7 @@ export default function Welcome({ onClose }: Props) {
             No mostrar al iniciar
           </label>
           <button type="button" autoFocus onClick={close}>
-            Entendido, empezar
+            Entendido, empezar →
           </button>
         </footer>
         <p className="reopen">Puedes volver a abrir esta guía con "¿Cómo usar la herramienta?", al final de la barra izquierda.</p>

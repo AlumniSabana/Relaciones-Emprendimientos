@@ -1,12 +1,22 @@
-﻿:root {
-  --bg: #f7f8fa;
+/* Colores y tipografías de la página de TalentHub (herramientas-cdp), para que las dos se vean como una sola */
+:root {
+  --bg: #eef2f8;
   --gray: #c8ccd0;
-  --gray-edge: #d9dce0;
-  --text: #1f2933;
+  --gray-edge: #d9dce0; /* líneas del grafo */
+  --line: #d9e1ef; /* bordes de la interfaz */
+  --text: #364153;
   --muted: #5f6b76;
-  --brand: #0b3a7a;
-  /* Alto del encabezado: Graph.tsx lo lee para encuadrar el grafo debajo y la tarjeta se coloca bajo él. */
-  --header-h: 96px;
+  --brand: #00135b;
+  --brand-50: #eef2f8;
+  --brand-100: #d9e1ef;
+  --brand-300: #93aac9;
+  --brand-600: #0b4db8;
+  --brand-700: #00387d;
+  --brand-900: #00135b;
+  --brand-950: #000e42;
+  --font-sans: "Libre Franklin Variable", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Playfair Display Variable", Georgia, serif;
+  --topbar-h: 64px;
 }
 
 * {
@@ -23,26 +33,81 @@ body,
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-sans);
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* Barra superior + (barra lateral | lienzo) */
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.topbar {
+  position: relative;
+  z-index: 20;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: var(--topbar-h);
+  padding: 0 24px;
+  background: var(--brand-900);
+  box-shadow: 0 2px 12px rgb(0 0 0 / 0.25);
+}
+
+.topbar-logo {
+  height: 40px;
+  width: auto;
+}
+
+.topbar-divider {
+  width: 1px;
+  height: 32px;
+  background: rgb(255 255 255 / 0.25);
+}
+
+.topbar h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-style: italic;
+  font-weight: 400;
+  color: #fff;
+}
+
+.topbar-sabana {
+  height: 30px;
+  width: auto;
+  margin-left: auto;
 }
 
 .app {
+  flex: 1;
+  min-height: 0;
   display: flex;
-  height: 100%;
   overflow: hidden;
 }
 
-/* Barra izquierda: búsqueda y sectores */
+/* Barra izquierda (siempre visible): búsqueda, herramientas, filtros y sectores */
 .sidebar {
   flex: none;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  width: 330px;
-  padding: 16px;
+  gap: 14px;
+  width: 380px;
+  padding: 20px;
   overflow-y: auto;
   background: #fff;
-  border-right: 1px solid var(--gray-edge);
+  border-right: 1px solid var(--line);
+  font-size: 16px;
 }
 
 .canvas {
@@ -51,72 +116,27 @@ body {
   min-width: 0;
 }
 
-/* Encabezado: logos y título centrado sobre el grafo; se desvanece al acercar */
-.page-header {
-  position: absolute;
-  z-index: 1;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: var(--header-h);
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); /* columnas laterales iguales: el título queda centrado */
-  align-items: center;
-  gap: 16px;
-  padding: 0 24px;
-  background: #fff;
-  border-bottom: 1px solid var(--gray-edge);
-  pointer-events: none; /* no estorba al mover ni acercar el grafo */
-  transition: opacity 0.15s linear;
-}
-
-.page-header h1 {
-  margin: 0;
-  font-size: clamp(18px, 2.4vw, 30px);
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  text-align: center;
-  color: var(--brand);
-}
-
-/* Los JPEG traen mucho margen blanco: "cover" en una caja baja deja solo el logo */
-.logo {
-  object-fit: cover;
-  height: clamp(34px, 4.4vw, 56px);
-}
-
-.logo-sabana {
-  width: clamp(120px, 14vw, 200px);
-  justify-self: start;
-}
-
-/* La imagen ya viene recortada al logo: se ve completo, sin "cover" */
-.logo-talenthub {
-  width: clamp(90px, 11vw, 150px);
-  object-fit: contain;
-  justify-self: end;
-}
-
 @media (max-width: 760px) {
   :root {
-    --header-h: 64px;
+    --topbar-h: 56px;
   }
 
-  .page-header {
+  .topbar {
     padding: 0 12px;
-    gap: 8px;
+    gap: 10px;
   }
 
-  .logo {
-    height: 36px;
+  .topbar-logo {
+    height: 32px;
   }
 
-  .logo-sabana {
-    width: 128px;
+  .topbar-divider,
+  .topbar-sabana {
+    display: none;
   }
 
-  .logo-talenthub {
-    width: 84px;
+  .topbar h1 {
+    font-size: 16px;
   }
 
   .app {
@@ -127,7 +147,7 @@ body {
     width: 100%;
     max-height: 45%;
     border-right: 0;
-    border-bottom: 1px solid var(--gray-edge);
+    border-bottom: 1px solid var(--line);
   }
 }
 
@@ -471,7 +491,7 @@ body {
 .card {
   position: absolute;
   z-index: 2;
-  top: calc(var(--header-h) + 8px);
+  top: 8px;
   right: 16px;
   bottom: 16px;
   width: min(380px, calc(100% - 32px));

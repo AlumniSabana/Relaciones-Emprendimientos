@@ -16,7 +16,7 @@ describe("Welcome guide", () => {
 
   it("closes with the button, with Escape or by clicking outside, and can be opened again from the end of the sidebar", () => {
     render(<App />);
-    fireEvent.click(screen.getByRole("button", { name: "Entendido, empezar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Entendido, empezar →" }));
     expect(dialog()).toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: "¿Cómo usar la herramienta?" }));
@@ -37,13 +37,13 @@ describe("Welcome guide", () => {
 
   it("stays closed on the next visit only if the person asked not to see it at start", () => {
     const first = render(<App />);
-    fireEvent.click(screen.getByRole("button", { name: "Entendido, empezar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Entendido, empezar →" }));
     first.unmount();
     expect(render(<App />).container.ownerDocument.body).toBeTruthy();
     expect(dialog()).toBeInTheDocument(); // sin marcar la casilla, vuelve a abrirse
 
     fireEvent.click(screen.getByLabelText("No mostrar al iniciar"));
-    fireEvent.click(screen.getByRole("button", { name: "Entendido, empezar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Entendido, empezar →" }));
     const again = render(<App />);
     expect(dialog()).toBeNull();
     again.unmount();

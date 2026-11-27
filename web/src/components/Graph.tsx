@@ -29,7 +29,6 @@ const FOCUS_SCALE = 1.6;
 const MAX_LABEL = 28; // las etiquetas largas se pisan; el nombre completo queda en la ayuda emergente
 const TOP_LABELS = 10; // con un sector elegido se rotulan las 10 empresas con más información
 const GROUP_COLOR = "#475569"; // las conexiones entre empresas de un grupo no tienen un sector único
-const DEFAULT_HEADER = 96; // alto del encabezado si no se puede leer --header-h (styles.css)
 
 interface NodeProps {
   id: string;
@@ -114,12 +113,9 @@ export default function Graph({ graph, selection, onSelect, focus, onZoom, neigh
     const selection = select(svg).call(behavior).on("dblclick.zoom", null);
     const fit = () => {
       const [width, height] = size();
-      // El encabezado ocupa la franja de arriba: el grafo se centra en lo que queda libre.
-      const top = parseFloat(getComputedStyle(svg).getPropertyValue("--header-h")) || DEFAULT_HEADER;
-      const usable = Math.max(height - top, 1);
-      const scale = Math.min(width, usable) / (2 * extentRef.current);
+      const scale = Math.min(width, height) / (2 * extentRef.current);
       fitScaleRef.current = scale;
-      selection.call(behavior.transform, zoomIdentity.translate(width / 2, top + usable / 2).scale(scale));
+      selection.call(behavior.transform, zoomIdentity.translate(width / 2, height / 2).scale(scale));
     };
     fitRef.current = fit;
     // Se encuadra una sola vez, cuando el lienzo ya tiene tamaño real.

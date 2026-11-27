@@ -1,42 +1,126 @@
-/* Herramientas de la barra izquierda (asistente y matches) y los paneles que abren sobre el lienzo */
+/* Herramientas de la barra izquierda: como los botones del menú de la página de referencia (Inicio / Portafolio) */
 .tools {
   display: flex;
-  gap: 8px;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .tools button,
 .card .find-matches {
-  flex: 1;
-  width: auto;
-  height: auto;
-  padding: 8px 10px;
-  border: 1px solid var(--brand);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
   border-radius: 8px;
   background: #fff;
-  color: var(--brand);
-  font: inherit;
-  font-size: 13px;
+  color: var(--text);
+  font-size: 16px;
   font-weight: 600;
+  text-align: left;
   cursor: pointer;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
 }
 
-.tools button[aria-pressed="true"],
 .tools button:hover,
 .card .find-matches:hover {
-  background: var(--brand);
-  color: #fff;
+  border-color: var(--brand-300);
+  background: var(--brand-50);
+}
+
+/* Abierto: igual que "Inicio" cuando es la página actual */
+.tools button[aria-pressed="true"] {
+  border-color: var(--brand-700);
+  background: var(--brand-100);
+  color: var(--brand-900);
+}
+
+.tools svg {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .card .find-matches {
-  flex: none;
+  width: auto;
+  height: auto;
   margin: 0 16px 8px;
+  font-size: 14px;
+}
+
+/* Como "Crear cuenta" del menú de la página de referencia */
+.help-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: none;
+  width: 100%;
+  height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--brand-900);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.help-button:hover {
+  background: var(--brand-950);
+}
+
+.help-button:focus-visible,
+.welcome footer button:focus-visible {
+  outline: 2px solid var(--brand-600);
+  outline-offset: 2px;
+}
+
+/* Letra más grande en la barra lateral */
+.sidebar .search input,
+.sidebar .search .results button {
+  font-size: 16px;
+}
+
+.sidebar .snippet,
+.sidebar .tag {
+  font-size: 13px;
+}
+
+.sidebar .search .empty,
+.sidebar .filters label,
+.sidebar .filters select,
+.sidebar .filters button {
+  font-size: 15px;
+}
+
+.sidebar .filters summary,
+.sidebar .legend button {
+  font-size: 16px;
+}
+
+.sidebar .filters .shown,
+.sidebar .legend .count,
+.sidebar .line-key {
+  font-size: 14px;
 }
 
 /* A la izquierda del lienzo; la tarjeta de la empresa queda a la derecha */
 .panel {
   position: absolute;
   z-index: 3;
-  top: calc(var(--header-h) + 8px);
+  top: 8px;
   left: 16px;
   bottom: 16px;
   width: min(400px, calc(100% - 32px));
@@ -339,88 +423,89 @@
   color: #fff;
 }
 
-/* Instrucciones: ventana emergente al iniciar y botón al final de la barra lateral */
-.help-button {
-  padding: 8px 10px;
-  border: 1px solid var(--gray);
-  border-radius: 8px;
-  background: #fff;
-  color: var(--brand);
-  font: inherit;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.help-button:hover {
-  background: var(--bg);
-}
-
+/* Instrucciones: ventana emergente al iniciar (tarjeta, títulos y botón como la página de referencia) */
 .welcome-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 10;
+  z-index: 30;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
-  background: rgb(15 23 42 / 0.55);
+  background: rgb(0 14 66 / 0.55);
 }
 
 .welcome {
-  width: min(620px, 100%);
+  width: min(780px, 100%);
   max-height: 100%;
   overflow-y: auto;
-  padding: 20px 24px;
+  padding: 32px 40px;
   background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 16px 48px rgb(0 0 0 / 0.3);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 16px 48px rgb(0 19 91 / 0.3);
+  font-size: 17px;
 }
 
 .welcome h2 {
-  margin: 0 0 12px;
-  font-size: 20px;
-  color: var(--brand);
+  margin: 0 0 18px;
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--brand-900);
 }
 
 .welcome ol {
   margin: 0;
-  padding-left: 20px;
-  font-size: 14px;
-  line-height: 1.45;
+  padding-left: 24px;
+  line-height: 1.55;
 }
 
 .welcome li {
-  margin-bottom: 8px;
+  margin-bottom: 11px;
 }
 
 .welcome footer {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 16px;
   align-items: center;
   justify-content: space-between;
-  margin-top: 16px;
+  margin-top: 22px;
 }
 
 .welcome footer label {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--muted);
 }
 
 .welcome footer button {
-  padding: 10px 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 28px;
   border: 0;
-  border-radius: 999px;
-  background: var(--brand);
+  border-radius: 8px;
+  background: var(--brand-900);
   color: #fff;
-  font: inherit;
+  font-size: 16px;
   font-weight: 600;
+  white-space: nowrap;
   cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.welcome footer button:hover {
+  background: var(--brand-950);
 }
 
 .welcome .reopen {
-  margin: 12px 0 0;
-  font-size: 12px;
+  margin: 16px 0 0;
+  font-size: 14px;
   color: var(--muted);
 }
 

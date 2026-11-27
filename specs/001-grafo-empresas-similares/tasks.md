@@ -251,6 +251,7 @@ description: "Lista de tareas para el grafo de empresas similares"
 - [X] T081 `tools/update_data.py`: pipeline de un Excel nuevo (limpieza, dedupe por ID y nombre, sector por votación, filas nuevas al final de la base y del sector, regeneración y certificación; `--dry-run`, `--prefix`); `prefix` en `build_new_base` y `similarity_text` en `build_graph.py`; pruebas en `tests/test_update_data.py`
 - [X] T082 `tools/certify.py` (pruebas de relaciones y matches, cola `Conexiones_por_revisar.csv`, `--registrar`), pruebas en `tests/test_certify.py` (casos que deben fallar y datos reales) y `.github/workflows/ci.yml`
 - [X] T083 Reescribir `README.md` como manual de usuario y de desarrollador
+- [X] T084 Aplicar el estilo de la página de TalentHub (FR-040): fuentes `@fontsource-variable/libre-franklin` y `playfair-display`, logos blancos (`talenthub-blanco.png`, `sabana-blanco.png`), `Header.tsx` como barra superior de ancho completo, `.shell` en `App.tsx`, sin el desvanecimiento (se quitan `lib/header.ts` y `--header-h`; `Graph.tsx` encuadra sin franja superior), barra lateral más grande, botones de herramientas, botón de ayuda y ventana de instrucciones en `styles.css` y `panels.css`; pruebas en `header.test.tsx` y `Welcome.test.tsx`
 
 ### Verificación de la revisión
 
