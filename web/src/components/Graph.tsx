@@ -1,5 +1,5 @@
 import { select } from "d3-selection";
-import { zoom, zoomIdentity, type ZoomBehavior } from "d3-zoom";
+import { zoom, zoomIdentity, zoomTransform, type ZoomBehavior } from "d3-zoom";
 import { memo, useEffect, useMemo, useRef } from "react";
 import { ALL_NEIGHBORS, visibleConnections, type NeighborFilter } from "../lib/connections";
 import { sectorColors } from "../lib/graph";
@@ -81,6 +81,9 @@ export default function Graph({ graph, selection, onSelect, focus, onZoom, neigh
   const fitScaleRef = useRef(0);
   const fitRef = useRef<() => void>();
   const extentRef = useRef(1);
+  // Tamaño del lienzo en el último encuadre y si la persona ya movió o acercó la vista (para no deshacérselo al redimensionar).
+  const sizeRef = useRef<readonly [number, number]>();
+  const touchedRef = useRef(false);
   const firstGraph = useRef(true);
   const onZoomRef = useRef(onZoom);
   onZoomRef.current = onZoom;
@@ -107,6 +110,7 @@ export default function Graph({ graph, selection, onSelect, focus, onZoom, neigh
         viewportRef.current?.setAttribute("transform", event.transform.toString());
         // Las etiquetas compensan el zoom (styles.css) para leerse igual con el grafo completo o acercado.
         svg.style.setProperty("--k", String(event.transform.k));
+        if (event.sourceEvent) touchedRef.current = true; // rueda o arrastre de la persona, no un encuadre del programa
         if (fitScaleRef.current) onZoomRef.current?.(event.transform.k / fitScaleRef.current);
       });
     behaviorRef.current = behavior;
@@ -115,18 +119,29 @@ export default function Graph({ graph, selection, onSelect, focus, onZoom, neigh
       const [width, height] = size();
       const scale = Math.min(width, height) / (2 * extentRef.current);
       fitScaleRef.current = scale;
+      sizeRef.current = [width, height];
+      touchedRef.current = false;
       selection.call(behavior.transform, zoomIdentity.translate(width / 2, height / 2).scale(scale));
     };
     fitRef.current = fit;
-    // Se encuadra una sola vez, cuando el lienzo ya tiene tamaño real.
+    // Se encuadra cuando el lienzo ya tiene tamaño real y cada vez que cambia de tamaño: si la persona no ha movido
+    // la vista se vuelve a encuadrar; si ya la movió, se conserva lo que estaba mirando (el mismo centro).
     let observer: ResizeObserver | undefined;
     if (typeof ResizeObserver === "undefined") {
       fit();
     } else {
       observer = new ResizeObserver(() => {
         if (!svg.clientWidth) return;
-        observer?.disconnect();
-        fit();
+        const [width, height] = size();
+        const last = sizeRef.current;
+        if (!last || !touchedRef.current) return fit();
+        if (width === last[0] && height === last[1]) return;
+        const t = zoomTransform(svg);
+        sizeRef.current = [width, height];
+        selection.call(
+          behavior.transform,
+          zoomIdentity.translate(t.x + (width - last[0]) / 2, t.y + (height - last[1]) / 2).scale(t.k),
+        );
       });
       observer.observe(svg);
     }
@@ -161,6 +176,7 @@ export default function Graph({ graph, selection, onSelect, focus, onZoom, neigh
       .translate(centerX - scale * point.x, height / 2 - scale * point.y)
       .scale(scale);
     select(svg).call(behavior.transform, transform);
+    touchedRef.current = true; // la empresa pedida es lo que se está mirando: un cambio de tamaño no debe alejarla
   }, [focus?.key]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const selectedCompany = selection?.type === "company" ? byId.get(selection.id) : undefined;

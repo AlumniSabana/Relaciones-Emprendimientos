@@ -252,6 +252,9 @@ description: "Lista de tareas para el grafo de empresas similares"
 - [X] T082 `tools/certify.py` (pruebas de relaciones y matches, cola `Conexiones_por_revisar.csv`, `--registrar`), pruebas en `tests/test_certify.py` (casos que deben fallar y datos reales) y `.github/workflows/ci.yml`
 - [X] T083 Reescribir `README.md` como manual de usuario y de desarrollador
 - [X] T084 Aplicar el estilo de la página de TalentHub (FR-040): fuentes `@fontsource-variable/libre-franklin` y `playfair-display`, logos blancos (`talenthub-blanco.png`, `sabana-blanco.png`), `Header.tsx` como barra superior de ancho completo, `.shell` en `App.tsx`, sin el desvanecimiento (se quitan `lib/header.ts` y `--header-h`; `Graph.tsx` encuadra sin franja superior), barra lateral más grande, botones de herramientas, botón de ayuda y ventana de instrucciones en `styles.css` y `panels.css`; pruebas en `header.test.tsx` y `Welcome.test.tsx`
+- [X] T085 Reencuadrar el grafo al cambiar el tamaño del lienzo (`ResizeObserver` continuo y `touchedRef` en `web/src/components/Graph.tsx`: sin vista movida se reencuadra; con vista movida o empresa centrada se conserva el centro y el zoom); pruebas en `web/src/__tests__/Graph.resize.test.tsx`
+- [X] T086 Caché de contexto del chat: catálogo como prefijo idéntico de la instrucción de sistema (caché implícito de Gemini), último modelo que respondió primero (`lastGood`) y registro de tokens en caché en `web/api/chat.ts`; el caché explícito no está disponible en el nivel gratuito; pruebas del handler en `web/src/__tests__/chat.handler.test.ts`
+- [X] T087 Actualizar dependencias de desarrollo a Vite 7, Vitest 4, `@vitejs/plugin-react` 5, jsdom 26 y `@types/node` 22 (`npm audit`: 0 vulnerabilidades); `testTimeout` de 20 s en `web/vite.config.ts`
 
 ### Verificación de la revisión
 

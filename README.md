@@ -12,7 +12,7 @@ Al abrir la página aparece una guía; se vuelve a abrir con **¿Cómo usar la h
 
 | Parte | Tecnología |
 |---|---|
-| Página | React 18, TypeScript (estricto), Vite 5, d3-force y d3-zoom (`web/`) |
+| Página | React 18, TypeScript (estricto), Vite 7, d3-force y d3-zoom (`web/`) |
 | Datos | Python con pandas, scikit-learn y openpyxl, ejecutados con [`uv`](https://docs.astral.sh/uv/) (`tools/`) |
 | Asistente | Función de servidor `web/api/chat.ts` que llama a Google Gemini |
 | Pruebas | pytest (`tests/`) y Vitest + Testing Library (`web/src/__tests__/`) |
@@ -52,7 +52,7 @@ Solo nombres (los valores nunca se versionan; `.env*` está en `.gitignore`):
 ```bash
 uv run --with pytest --with pandas --with scikit-learn --with openpyxl pytest -q   # desde la raíz: 161 pruebas
 uv run --with pandas --with scikit-learn python tools/certify.py                   # 15 comprobaciones de las relaciones
-cd web && npm test                                                                  # 199 pruebas
+cd web && npm test                                                                  # 210 pruebas
 cd web && npm run build                                                             # tipos + compilación
 ```
 

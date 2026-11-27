@@ -75,6 +75,6 @@ describe("Matches in the app", () => {
     fireEvent.change(screen.getByRole("textbox", { name: "Buscar empresa o sector" }), { target: { value: me.name } });
     fireEvent.click(screen.getAllByRole("button", { name: new RegExp(`${me.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*Empresa`) })[0]);
     fireEvent.click(screen.getByRole("button", { name: "Buscar matches para esta empresa" }));
-    expect(await screen.findByRole("heading", { name: byId.get(candidates[0].other)!.name })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: byId.get(candidates[0].other)!.name }, { timeout: 10_000 })).toBeInTheDocument(); // carga diferida del panel, lenta con toda la suite en paralelo
   });
 });

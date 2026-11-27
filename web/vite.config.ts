@@ -32,5 +32,7 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./src/setupTests.ts"],
+    // Las pruebas que montan <App /> calculan la disposición de ~600 nodos y rondan los 5 s (el límite por defecto).
+    testTimeout: 20_000,
   },
 });
